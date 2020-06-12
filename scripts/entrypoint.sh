@@ -2,6 +2,6 @@
 
 set -euo pipefail
 
-download-tools.sh
+/scripts/download-tools.sh
 
 sleep 1d
