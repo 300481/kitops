@@ -50,6 +50,9 @@ spec:
       - image: 300481/kitops:latest
         imagePullPolicy: Always
         name: kitops
+        env:
+        - name: KITOPS_DEPLOYMENTS_URL
+          value: "https://github.com/300481/kitops-example.git"
         resources:
           requests:
             memory: "64Mi"
