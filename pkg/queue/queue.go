@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-type Processor interface {
+type Consumer interface {
 	Process(q *Queue)
 }
 
@@ -20,43 +20,44 @@ const (
 
 type Queue struct {
 	list           *list.List
-	current        string
-	previous       string
-	lastSuccessful string
+	current        interface{}
+	previous       interface{}
+	lastSuccessful interface{}
 	status         Status
 	mux            *sync.Mutex
-	processor      Processor
+	consumer       Consumer
 }
 
 // New creates a new Queue and returns *Queue.
-func New(processor Processor) *Queue {
+func New(consumer Consumer) *Queue {
 	return &Queue{
 		list:           list.New(),
-		current:        "",
-		previous:       "",
-		lastSuccessful: "",
+		current:        nil,
+		previous:       nil,
+		lastSuccessful: nil,
 		status:         Init,
 		mux:            &sync.Mutex{},
-		processor:      processor,
+		consumer:       consumer,
 	}
 }
 
 // Add adds a new commit string as element to the Queue and initiate a threaded processing.
-func (q *Queue) Add(commit string) {
-	q.list.PushBack(commit)
-	go q.processor.Process(q)
+func (q *Queue) Add(v interface{}) {
+	q.list.PushBack(v)
+	go q.consumer.Process(q)
 }
 
-// Next returns the next element in the queue and clean the queue by one.
+// StartNext returns the next element in the queue and clean the queue by one.
+// It also Locks a Mutex.
 // Must be finalized with Finish() to unlock the mutex.
-func (q *Queue) Next() string {
+func (q *Queue) StartNext() interface{} {
 	if q.list.Len() == 0 {
-		return ""
+		return nil
 	}
 
 	q.mux.Lock()
 	q.previous = q.current
-	q.current = q.list.Front().Value.(string)
+	q.current = q.list.Front().Value
 	q.list.Remove(q.list.Front())
 	q.status = InProgress
 
@@ -72,4 +73,24 @@ func (q *Queue) Finish(success bool) {
 		q.status = Failed
 	}
 	q.mux.Unlock()
+}
+
+// Current returns the current element
+func (q *Queue) Current() interface{} {
+	return q.current
+}
+
+// Previous returns the previous element
+func (q *Queue) Previous() interface{} {
+	return q.previous
+}
+
+// LastSuccessful returns the last successful processed element
+func (q *Queue) LastSuccessful() interface{} {
+	return q.lastSuccessful
+}
+
+// Status returns the status of the current processed element
+func (q *Queue) Status() Status {
+	return q.status
 }
