@@ -1,31 +1,34 @@
 package queue_test
 
-// Must be improved to test the queue processing element by element
-
 import (
+	"strconv"
 	"testing"
 	"time"
 
 	"github.com/300481/kitops/pkg/queue"
 )
 
-const Value string = "Hello World"
+const Value string = "Test"
 
-var ReturnedValue string
+var ReturnedValues []string
 
 type TestStruct struct{}
 
 func (t *TestStruct) Process(q *queue.Queue) {
-	ReturnedValue = q.StartNext().(string)
+	ReturnedValues = append(ReturnedValues, q.StartNext().(string))
 	q.Finish(true)
 }
 
 func TestNew(t *testing.T) {
 	ts := &TestStruct{}
 	q := queue.New(ts)
-	q.Add(Value)
-	time.Sleep(time.Second * 2)
-	if Value != ReturnedValue {
-		t.Errorf("got %s, want %s", ReturnedValue, Value)
+	for i := 0; i < 10; i++ {
+		q.Add(Value + strconv.Itoa(i))
+	}
+	time.Sleep(time.Second)
+	for i := 0; i < 10; i++ {
+		if Value+strconv.Itoa(i) != ReturnedValues[i] {
+			t.Errorf("got %s, want %s", ReturnedValues[i], Value+strconv.Itoa(i))
+		}
 	}
 }
