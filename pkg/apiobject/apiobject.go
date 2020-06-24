@@ -15,6 +15,7 @@ const (
 	ErrKindNotFound ErrorMessage = "Kind not found"
 )
 
+// ApiObject holds the object information of the API Object
 type ApiObject struct {
 	Kind     string
 	Metadata struct {
