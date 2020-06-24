@@ -3,6 +3,8 @@ package apiobject
 import (
 	"errors"
 	"io"
+	"log"
+	"os/exec"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -32,8 +34,15 @@ func New(r io.Reader) (ao *ApiObject, err error) {
 
 	var ob ApiObject
 	err = dec.Decode(&ob)
+	if err != nil {
+		return nil, err
+	}
 
-	return &ob, err
+	if len(ob.Metadata.Namespace) == 0 {
+		ob.Metadata.Namespace = "default"
+	}
+
+	return &ob, nil
 }
 
 // Namespaced returns a bool if the API Object is namespaced or not
@@ -126,7 +135,38 @@ func (ao *ApiObject) Namespaced() (b bool, err error) {
 	return false, errors.New(string(ErrKindNotFound) + ": " + ao.Kind)
 }
 
-// Exists returns if the Object exists in the cluster
+// Exists returns a bool. true if the Object exists in the cluster, false if not
+// It returns also false, when there is no information if the object is namespaced
 func (ao *ApiObject) Exists() bool {
+	namespaced, err := ao.Namespaced()
+	if err != nil {
+		return false
+	}
+
+	var commandArguments []string
+	if namespaced {
+		commandArguments = []string{
+			"-n",
+			ao.Metadata.Namespace,
+			"get",
+			ao.Kind,
+			ao.Metadata.Name,
+		}
+	} else {
+		commandArguments = []string{
+			"get",
+			ao.Kind,
+			ao.Metadata.Name,
+		}
+	}
+
+	cmd := exec.Command("kubectl", commandArguments...)
+
+	err = cmd.Run()
+	if err != nil {
+		log.Println("Error running command: kubectl ", commandArguments)
+		return false
+	}
+
 	return true
 }
