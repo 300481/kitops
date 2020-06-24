@@ -8,9 +8,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type ErrorMessage string
+
 const (
-	ObjectTimeout   = time.Minute
-	ErrKindNotFound = "Kind not found"
+	ObjectTimeout                = time.Minute
+	ErrKindNotFound ErrorMessage = "Kind not found"
 )
 
 type ApiObject struct {
@@ -129,5 +131,5 @@ func (ao *ApiObject) Namespaced() (b bool, err error) {
 	if ok {
 		return v, nil
 	}
-	return false, errors.New(ErrKindNotFound + ": " + ao.Kind)
+	return false, errors.New(string(ErrKindNotFound) + ": " + ao.Kind)
 }
