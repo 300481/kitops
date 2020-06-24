@@ -22,9 +22,6 @@ type ApiObject struct {
 		Name      string
 		Namespace string
 	}
-	exists      bool
-	lastUpdated time.Time
-	timeout     time.Duration
 }
 
 // New parses a YAML of a Kubernetes Object description
@@ -35,12 +32,6 @@ func New(r io.Reader) (ao *ApiObject, err error) {
 
 	var ob ApiObject
 	err = dec.Decode(&ob)
-
-	if err != nil {
-		ob.exists = false // TODO needs implementation
-		ob.lastUpdated = time.Now()
-		ob.timeout = ObjectTimeout
-	}
 
 	return &ob, err
 }
@@ -133,4 +124,9 @@ func (ao *ApiObject) Namespaced() (b bool, err error) {
 		return v, nil
 	}
 	return false, errors.New(string(ErrKindNotFound) + ": " + ao.Kind)
+}
+
+// Exists returns if the Object exists in the cluster
+func (ao *ApiObject) Exists() bool {
+	return true
 }
