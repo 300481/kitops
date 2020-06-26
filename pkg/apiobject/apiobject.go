@@ -10,11 +10,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type ErrorMessage string
+type errorMessage string
 
 const (
-	ObjectTimeout                = time.Minute
-	ErrKindNotFound ErrorMessage = "Kind not found"
+	objectTimeout                = time.Minute
+	errKindNotFound errorMessage = "Kind not found"
 )
 
 // ApiObject holds the object information of the API Object
@@ -132,7 +132,7 @@ func (ao *ApiObject) Namespaced() (b bool, err error) {
 	if ok {
 		return v, nil
 	}
-	return false, errors.New(string(ErrKindNotFound) + ": " + ao.Kind)
+	return false, errors.New(string(errKindNotFound) + ": " + ao.Kind)
 }
 
 // Exists returns a bool. true if the Object exists in the cluster, false if not

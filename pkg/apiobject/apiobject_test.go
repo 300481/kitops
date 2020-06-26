@@ -84,7 +84,6 @@ metadata:
 kind: StorageClass
 metadata:
   name: Test
-  namespace: Test
 `
 	r3 := bytes.NewReader([]byte(TestYaml3))
 	object3, err := apiobject.New(r3)
@@ -95,5 +94,16 @@ metadata:
 	namespaced3, err := object3.Namespaced()
 	if namespaced3 {
 		t.Errorf("Kind 'StorageClass' should not be namespaced.\n%+v\n", object3)
+	}
+
+	var TestYaml4 = `
+kind= StorageClass
+metadata=
+  name= Test
+`
+	r4 := bytes.NewReader([]byte(TestYaml4))
+	_, err = apiobject.New(r4)
+	if err == nil {
+		t.Errorf("Wrong formatted YAML should return an error\n%s\n", TestYaml4)
 	}
 }
