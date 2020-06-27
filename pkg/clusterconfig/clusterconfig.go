@@ -25,9 +25,13 @@ func New(sourceRepo *sourcerepo.SourceRepo, commitID string, resourceDirectory s
 		SourceRepository:  sourceRepo,
 		ResourceDirectory: resourceDirectory,
 	}
+
+	config.loadResources()
+
 	return config, nil
 }
 
 func (cc *ClusterConfig) loadResources() error {
+	// TODO: needs implementation
 	return nil
 }
