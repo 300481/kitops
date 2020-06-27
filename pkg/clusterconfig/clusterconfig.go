@@ -27,3 +27,7 @@ func New(sourceRepo *sourcerepo.SourceRepo, commitID string, resourceDirectory s
 	}
 	return config, nil
 }
+
+func (cc *ClusterConfig) loadResources() error {
+	return nil
+}
