@@ -7,6 +7,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 )
 
+// SourceRepo is the struct for the Source Repository
 type SourceRepo struct {
 	repo *git.Repository
 }
@@ -27,8 +28,8 @@ func New(url string, directory string) (sr *SourceRepo, err error) {
 	return sourceRepo, nil
 }
 
-// Checkout checks out the commitId of the current repository
-func (sr *SourceRepo) Checkout(commitId string) error {
+// Checkout checks out the commitID of the current repository
+func (sr *SourceRepo) Checkout(commitID string) error {
 	wt, err := sr.repo.Worktree()
 	if err != nil {
 		return err
@@ -42,7 +43,7 @@ func (sr *SourceRepo) Checkout(commitId string) error {
 	}
 	err = wt.Checkout(&git.CheckoutOptions{
 		Force: true,
-		Hash:  plumbing.NewHash(commitId),
+		Hash:  plumbing.NewHash(commitID),
 	})
 	if err != nil {
 		return err
