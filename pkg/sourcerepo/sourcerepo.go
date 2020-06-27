@@ -19,7 +19,10 @@ func New(url string, directory string) (sr *SourceRepo, err error) {
 		Progress: os.Stdout,
 	})
 	if err != nil {
-		return nil, err
+		r, err = git.PlainOpen(directory)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	sourceRepo := &SourceRepo{
