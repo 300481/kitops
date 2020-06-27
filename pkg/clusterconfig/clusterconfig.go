@@ -1,22 +1,25 @@
 package clusterconfig
 
 import (
-	"github.com/300481/kitops/pkg/apiobject"
+	"github.com/300481/kitops/pkg/apiresource"
 	"github.com/300481/kitops/pkg/sourcerepo"
 )
 
-// ClusterConfig holds all API Objects for a commit id
+// ClusterConfig holds all API Resources for a commit id
 type ClusterConfig struct {
-	CommitId   string
-	ApiObjects []*apiobject.ApiObject
+	CommitID         string
+	APIResources     []*apiresource.APIResource
+	SourceRepository *sourcerepo.SourceRepo
 }
 
 // New returns an initialized *ClusterConfig
-// commitId is the commit id of the source repository.
-func New(sourceRepo *sourcerepo.SourceRepo, commitId string) (cc *ClusterConfig, err error) {
+// sourceRepo is the Repository with the configuration
+// commitID is the commit id of the source repository.
+func New(sourceRepo *sourcerepo.SourceRepo, commitID string) (cc *ClusterConfig, err error) {
 	config := &ClusterConfig{
-		CommitId:   commitId,
-		ApiObjects: []*apiobject.ApiObject{},
+		CommitID:         commitID,
+		APIResources:     []*apiresource.APIResource{},
+		SourceRepository: sourceRepo,
 	}
 	return config, nil
 }
