@@ -9,7 +9,8 @@ import (
 
 // SourceRepo is the struct for the Source Repository
 type SourceRepo struct {
-	repo *git.Repository
+	repo      *git.Repository
+	Directory string
 }
 
 // New returns initialized and cloned *SourceRepo
@@ -26,7 +27,8 @@ func New(url string, directory string) (sr *SourceRepo, err error) {
 	}
 
 	sourceRepo := &SourceRepo{
-		repo: r,
+		repo:      r,
+		Directory: directory,
 	}
 	return sourceRepo, nil
 }
