@@ -3,8 +3,8 @@ package sourcerepo
 import (
 	"os"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
+	git "github.com/go-git/go-git/v5"
+	plumbing "github.com/go-git/go-git/v5/plumbing"
 )
 
 // SourceRepo is the struct for the Source Repository
