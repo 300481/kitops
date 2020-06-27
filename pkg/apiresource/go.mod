@@ -1,4 +1,4 @@
-module github.com/300481/kitops/pkg/apiobject
+module github.com/300481/kitops/pkg/apiresource
 
 go 1.14
 

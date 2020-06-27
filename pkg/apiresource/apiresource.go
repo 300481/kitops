@@ -1,4 +1,4 @@
-package apiobject
+package apiresource
 
 import (
 	"errors"
@@ -17,8 +17,8 @@ const (
 	errKindNotFound errorMessage = "Kind not found"
 )
 
-// ApiObject holds the object information of the API Object
-type ApiObject struct {
+// APIResource holds the object information of the API Object
+type APIResource struct {
 	Kind     string
 	Metadata struct {
 		Name      string
@@ -26,29 +26,29 @@ type ApiObject struct {
 	}
 }
 
-// New parses a YAML of a Kubernetes Object description
-// returns an initialized API Object
-// returns an error, if the Reader contains no valid yaml object
-func New(r io.Reader) (ao *ApiObject, err error) {
+// New parses a YAML of a Kubernetes Resource description
+// returns an initialized API Resource
+// returns an error, if the Reader contains no valid yaml
+func New(r io.Reader) (resource *APIResource, err error) {
 	dec := yaml.NewDecoder(r)
 
-	var ob ApiObject
-	err = dec.Decode(&ob)
+	var ar APIResource
+	err = dec.Decode(&ar)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(ob.Metadata.Namespace) == 0 {
-		ob.Metadata.Namespace = "default"
+	if len(ar.Metadata.Namespace) == 0 {
+		ar.Metadata.Namespace = "default"
 	}
 
-	return &ob, nil
+	return &ar, nil
 }
 
-// Namespaced returns a bool if the API Object is namespaced or not
+// Namespaced returns a bool if the API Resource is namespaced or not
 // returns an error if Kind is not found
 // TODO must be made dynamic by fetching supported API-Resources from current cluster
-func (ao *ApiObject) Namespaced() (b bool, err error) {
+func (r *APIResource) Namespaced() (b bool, err error) {
 	namespaced := map[string]bool{
 		"Alertmanager":                   true,
 		"Binding":                        true,
@@ -128,17 +128,17 @@ func (ao *ApiObject) Namespaced() (b bool, err error) {
 		"VolumeAttachment":               false,
 	}
 
-	v, ok := namespaced[ao.Kind]
+	v, ok := namespaced[r.Kind]
 	if ok {
 		return v, nil
 	}
-	return false, errors.New(string(errKindNotFound) + ": " + ao.Kind)
+	return false, errors.New(string(errKindNotFound) + ": " + r.Kind)
 }
 
 // Exists returns a bool. true if the Object exists in the cluster, false if not
 // It returns also false, when there is no information if the object is namespaced
-func (ao *ApiObject) Exists() bool {
-	namespaced, err := ao.Namespaced()
+func (r *APIResource) Exists() bool {
+	namespaced, err := r.Namespaced()
 	if err != nil {
 		return false
 	}
@@ -147,16 +147,16 @@ func (ao *ApiObject) Exists() bool {
 	if namespaced {
 		commandArguments = []string{
 			"-n",
-			ao.Metadata.Namespace,
+			r.Metadata.Namespace,
 			"get",
-			ao.Kind,
-			ao.Metadata.Name,
+			r.Kind,
+			r.Metadata.Name,
 		}
 	} else {
 		commandArguments = []string{
 			"get",
-			ao.Kind,
-			ao.Metadata.Name,
+			r.Kind,
+			r.Metadata.Name,
 		}
 	}
 
