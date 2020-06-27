@@ -1,11 +1,9 @@
-package apiresource_test
+package apiresource
 
 import (
 	"bytes"
 	"fmt"
 	"testing"
-
-	"github.com/300481/kitops/pkg/apiresource"
 )
 
 func TestNew(t *testing.T) {
@@ -17,7 +15,7 @@ metadata:
   namespace: Test
 `
 
-	var TestResource = apiresource.APIResource{
+	var TestResource = APIResource{
 		Kind: "Test",
 		Metadata: struct {
 			Name      string
@@ -29,7 +27,7 @@ metadata:
 	}
 
 	r := bytes.NewReader([]byte(TestYaml))
-	resource, err := apiresource.New(r)
+	resource, err := New(r)
 	if err != nil {
 		t.Error(err)
 	}
@@ -51,7 +49,7 @@ metadata:
   namespace: Test
 `
 	r1 := bytes.NewReader([]byte(TestYaml1))
-	resource1, err := apiresource.New(r1)
+	resource1, err := New(r1)
 	if err != nil {
 		t.Error(err)
 	}
@@ -69,7 +67,7 @@ metadata:
   namespace: Test
 `
 	r2 := bytes.NewReader([]byte(TestYaml2))
-	resource2, err := apiresource.New(r2)
+	resource2, err := New(r2)
 	if err != nil {
 		t.Error(err)
 	}
@@ -86,7 +84,7 @@ metadata:
   name: Test
 `
 	r3 := bytes.NewReader([]byte(TestYaml3))
-	resource3, err := apiresource.New(r3)
+	resource3, err := New(r3)
 	if err != nil {
 		t.Error(err)
 	}
@@ -102,7 +100,7 @@ metadata=
   name= Test
 `
 	r4 := bytes.NewReader([]byte(TestYaml4))
-	_, err = apiresource.New(r4)
+	_, err = New(r4)
 	if err == nil {
 		t.Errorf("Wrong formatted YAML should return an error\n%s\n", TestYaml4)
 	}
