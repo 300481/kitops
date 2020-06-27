@@ -7,19 +7,23 @@ import (
 
 // ClusterConfig holds all API Resources for a commit id
 type ClusterConfig struct {
-	CommitID         string
-	APIResources     []*apiresource.APIResource
-	SourceRepository *sourcerepo.SourceRepo
+	CommitID          string
+	APIResources      []*apiresource.APIResource
+	SourceRepository  *sourcerepo.SourceRepo
+	ResourceDirectory string
 }
 
 // New returns an initialized *ClusterConfig
 // sourceRepo is the Repository with the configuration
 // commitID is the commit id of the source repository.
-func New(sourceRepo *sourcerepo.SourceRepo, commitID string) (cc *ClusterConfig, err error) {
+func New(sourceRepo *sourcerepo.SourceRepo, commitID string, resourceDirectory string) (cc *ClusterConfig, err error) {
+	sourceRepo.Checkout(commitID)
+
 	config := &ClusterConfig{
-		CommitID:         commitID,
-		APIResources:     []*apiresource.APIResource{},
-		SourceRepository: sourceRepo,
+		CommitID:          commitID,
+		APIResources:      []*apiresource.APIResource{},
+		SourceRepository:  sourceRepo,
+		ResourceDirectory: resourceDirectory,
 	}
 	return config, nil
 }
