@@ -1,6 +1,7 @@
 package clusterconfig
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/300481/kitops/pkg/sourcerepo"
@@ -36,14 +37,6 @@ func TestNew(t *testing.T) {
 	if cc.ResourceDirectory != resourceDirectory {
 		t.Error("ClusterConfig not initialized correctly. ResourceDirectory wrong.")
 	}
-}
 
-func TestLoadResources(t *testing.T) {
-	cc := &ClusterConfig{}
-
-	err := cc.loadResources()
-
-	if err != nil {
-		t.Error(err)
-	}
+	fmt.Printf("%+v\n", cc.APIResources[0])
 }
