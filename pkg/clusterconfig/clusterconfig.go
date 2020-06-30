@@ -28,7 +28,9 @@ type helmRelease struct {
 		Namespace string
 	}
 	Spec struct {
-		releaseName string
+		ReleaseName     string
+		HelmVersion     string
+		TargetNamespace string
 	}
 }
 
