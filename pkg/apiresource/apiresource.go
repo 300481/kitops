@@ -63,6 +63,7 @@ func (r *APIResource) Namespaced() (b bool, err error) {
 		"EndpointSlice":                  true,
 		"Endpoints":                      true,
 		"Event":                          true,
+		"HelmRelease":                    true,
 		"HorizontalPodAutoscaler":        true,
 		"Ingress":                        true,
 		"Issuer":                         true,
