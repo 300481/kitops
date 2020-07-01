@@ -5,8 +5,8 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	// repoURL := "https://github.com/300481/flux-get-started.git"
-	// commitID := "f6f0712a4524cc0d0bf99f47fc351b398c27c58d"
+	// repoURL := "https://github.com/300481/kitops-test.git"
+	// commitID := "f0ae1a86eed1923b09dfe3e55b9d657c7dec18ff"
 	// repoDirectory := "testdir"
 	// resourceDirectory := "releases"
 	//
