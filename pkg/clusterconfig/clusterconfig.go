@@ -3,7 +3,6 @@ package clusterconfig
 import (
 	"bytes"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -11,50 +10,17 @@ import (
 	"path/filepath"
 
 	"github.com/300481/kitops/pkg/apiresource"
+	"github.com/300481/kitops/pkg/helmrelease"
 	"github.com/300481/kitops/pkg/sourcerepo"
-	yaml "gopkg.in/yaml.v2"
 )
 
 // ClusterConfig holds all API Resources for a commit id
 type ClusterConfig struct {
 	CommitID          string
 	APIResources      []*apiresource.APIResource
+	HelmReleases      []*helmrelease.HelmRelease
 	SourceRepository  *sourcerepo.SourceRepo
 	ResourceDirectory string
-	helmReleases      []*HelmRelease
-}
-
-// HelmRelease holds the neccessary information for helm to get
-// the cluster resources of the Helm Release
-type HelmRelease struct {
-	Kind     string
-	Metadata struct {
-		Namespace string
-	}
-	Spec struct {
-		ReleaseName     string
-		HelmVersion     string
-		TargetNamespace string
-	}
-}
-
-// newHelmRelease parses a YAML of a Kubernetes Resource description
-// returns an initialized HelmRelease
-// returns an error, if the Reader contains no valid yaml
-func newHelmRelease(r io.Reader) (helmRelease *HelmRelease, err error) {
-	dec := yaml.NewDecoder(r)
-
-	var hr HelmRelease
-	err = dec.Decode(&hr)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(hr.Metadata.Namespace) == 0 {
-		hr.Metadata.Namespace = "default"
-	}
-
-	return &hr, nil
 }
 
 // New returns an initialized *ClusterConfig
@@ -64,34 +30,21 @@ func New(sourceRepo *sourcerepo.SourceRepo, commitID string, resourceDirectory s
 	return &ClusterConfig{
 		CommitID:          commitID,
 		APIResources:      []*apiresource.APIResource{},
+		HelmReleases:      []*helmrelease.HelmRelease{},
 		SourceRepository:  sourceRepo,
 		ResourceDirectory: resourceDirectory,
-		helmReleases:      []*HelmRelease{},
 	}
 }
 
 // Apply applies the configuration stored in the repositories
-// and checked out with the commitID
+// and checked out with the commitID.
+// It also loads all Resources into the ClusterConfig.
 func (cc *ClusterConfig) Apply() error {
 	if err := cc.SourceRepository.Checkout(cc.CommitID); err != nil {
 		return err
 	}
-
-	if err := cc.loadKubectlResourcesAndApply(); err != nil {
-		return err
-	}
-
-	if err := cc.loadHelmResources(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// loadResources walks the resource directory and loads the resources from yaml files
-func (cc *ClusterConfig) loadKubectlResourcesAndApply() error {
 	walkPath := cc.SourceRepository.Directory + "/" + cc.ResourceDirectory
-	return filepath.Walk(walkPath, func(path string, info os.FileInfo, err error) error {
+	walkErr := filepath.Walk(walkPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
 			return err
@@ -101,31 +54,31 @@ func (cc *ClusterConfig) loadKubectlResourcesAndApply() error {
 		if !info.IsDir() {
 			matched, _ := filepath.Match("*.yaml", info.Name())
 			if matched {
-				file, err := os.Open(path)
+				content, err := ioutil.ReadFile(path)
 				if err != nil {
 					return err
 				}
+
+				// Create a Reader for the API Resources
+				APIResourceContentReader := bytes.NewReader(content)
 				for {
-					resource, err := apiresource.New(file)
+					resource, err := apiresource.New(APIResourceContentReader)
 					if err != nil {
 						break
 					}
 					cc.APIResources = append(cc.APIResources, resource)
 				}
-				// TODO logic must be rearranged
-				file.Close()
-				// TODO needs to be included in the for loop or completely moved to loadHelmResources
-				if resource.Kind == "HelmRelease" {
-					file, err = os.Open(path)
+
+				// Create a Reader for the HelmReleases
+				HelmReleaseContentReader := bytes.NewReader(content)
+				for {
+					helmRelease, err := helmrelease.New(HelmReleaseContentReader)
 					if err != nil {
-						return err
+						break
 					}
-					helmrelease, err := newHelmRelease(file)
-					if err != nil {
-						return err
+					if helmRelease != nil {
+						cc.HelmReleases = append(cc.HelmReleases, helmRelease)
 					}
-					file.Close()
-					cc.helmReleases = append(cc.helmReleases, helmrelease)
 				}
 			}
 			// if it is a directory, apply the YAML files with kubectl
@@ -135,34 +88,9 @@ func (cc *ClusterConfig) loadKubectlResourcesAndApply() error {
 				log.Println(err)
 			}
 		}
-		return nil
+		return cc.loadHelmResources()
 	})
-}
-
-// loadHelmResources loads the resources which results from a HelmRelease
-func (cc *ClusterConfig) loadHelmResources() error {
-	// TODO: needs implementation
-	for _, helmrelease := range cc.helmReleases {
-		var command string
-		commandArguments := []string{
-			"get",
-			"manifest",
-		}
-		if helmrelease.Spec.HelmVersion == "v3" {
-			command = "helm3"
-			commandArguments = append(commandArguments, "--namespace", helmrelease.Metadata.Namespace)
-		} else {
-			command = "helm2"
-		}
-		cmd := exec.Command(command, commandArguments...)
-		b, err := cmd.Output()
-		if err != nil {
-			return err
-		}
-		r := bytes.NewReader(b)
-
-	}
-	return nil
+	return walkErr
 }
 
 // applyKubectl runs kubectl apply with the given path
@@ -197,5 +125,38 @@ func (cc *ClusterConfig) applyKubectl(path string) error {
 		}
 	}
 
+	return nil
+}
+
+// loadHelmResources loads the resources which results from a HelmRelease
+func (cc *ClusterConfig) loadHelmResources() error {
+	var command string
+	commandArguments := []string{
+		"get",
+		"manifest",
+	}
+
+	for _, helmrelease := range cc.HelmReleases {
+		if helmrelease.Spec.HelmVersion == "v3" {
+			command = "helm3"
+			commandArguments = append(commandArguments, "--namespace", helmrelease.Metadata.Namespace)
+		} else {
+			command = "helm2"
+		}
+
+		b, err := exec.Command(command, commandArguments...).Output()
+		if err != nil {
+			return err
+		}
+
+		APIResourceContentReader := bytes.NewReader(b)
+		for {
+			resource, err := apiresource.New(APIResourceContentReader)
+			if err != nil {
+				break
+			}
+			cc.APIResources = append(cc.APIResources, resource)
+		}
+	}
 	return nil
 }
