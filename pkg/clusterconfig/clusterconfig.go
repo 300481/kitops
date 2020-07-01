@@ -27,6 +27,7 @@ type ClusterConfig struct {
 // sourceRepo is the Repository with the configuration
 // commitID is the commit id of the source repository.
 func New(sourceRepo *sourcerepo.SourceRepo, commitID string, resourceDirectory string) *ClusterConfig {
+	log.Println("Create new ClusterConfig.")
 	return &ClusterConfig{
 		CommitID:          commitID,
 		APIResources:      []*apiresource.APIResource{},
@@ -40,7 +41,9 @@ func New(sourceRepo *sourcerepo.SourceRepo, commitID string, resourceDirectory s
 // and checked out with the commitID.
 // It also loads all Resources into the ClusterConfig.
 func (cc *ClusterConfig) Apply() error {
+	log.Println("Apply the ClusterConfig.")
 	if err := cc.SourceRepository.Checkout(cc.CommitID); err != nil {
+		log.Printf("Checkout of repository failed. Commit: %s", cc.CommitID)
 		return err
 	}
 	walkPath := cc.SourceRepository.Directory + "/" + cc.ResourceDirectory
