@@ -34,11 +34,6 @@ func TestApply(t *testing.T) {
 		t.Error(err)
 	}
 
-	log.Println("Test Checkout.")
-	if err := repository.Checkout(commitID); err != nil {
-		t.Error(err)
-	}
-
 	testClusterConfig := New(repository, commitID, resourceDirectory)
 	if err := testClusterConfig.Apply(); err != nil {
 		t.Error(err)
