@@ -47,7 +47,7 @@ func (sr *SourceRepo) Checkout(commitID string) error {
 		Force:    true,
 		Progress: os.Stdout,
 	})
-	if err != nil {
+	if err != nil && err != git.NoErrAlreadyUpToDate {
 		log.Printf("Pull failed: %+v\n", err)
 		return err
 	}
