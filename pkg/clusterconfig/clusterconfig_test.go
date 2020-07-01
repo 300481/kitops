@@ -24,7 +24,7 @@ func TestApply(t *testing.T) {
 	log.Println("Test Apply()")
 
 	repoURL := "https://github.com/300481/kitops-test.git"
-	commitID := "f0ae1a86eed1923b09dfe3e55b9d657c7dec18ff"
+	commitID := "045d4485d54af656b11b05b2e26697cac7df8b76"
 	resourceDirectory := "namespaces"
 	sourceDirectory := "testdir"
 
@@ -37,5 +37,25 @@ func TestApply(t *testing.T) {
 	testClusterConfig := New(repository, commitID, resourceDirectory)
 	if err := testClusterConfig.Apply(); err != nil {
 		t.Error(err)
+	}
+
+	if testClusterConfig.CommitID != commitID || testClusterConfig.ResourceDirectory != resourceDirectory {
+		t.Errorf("CommitID or ResourceDirectory wrong.\nClusterConfig.CommitID: %s\nClusterConfig.ResourceDirectory: %s", testClusterConfig.CommitID, testClusterConfig.ResourceDirectory)
+	}
+
+	m := make(map[string]string)
+	m["default"] = "Namespace"
+	m["default-test"] = "Namespace"
+	m["kube-node-lease"] = "Namespace"
+	m["kube-public"] = "Namespace"
+	m["kube-system"] = "Namespace"
+
+	for _, resource := range testClusterConfig.APIResources {
+		if m[resource.Metadata.Name] != resource.Kind {
+			t.Errorf("Resource Name: %s is not the right Kind: %s", resource.Metadata.Name, resource.Kind)
+		}
+		if !resource.Exists() {
+			t.Errorf("Resource Name: %s Kind: %s was not created in the cluster.", resource.Metadata.Name, resource.Kind)
+		}
 	}
 }
