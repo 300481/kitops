@@ -1,6 +1,7 @@
 package sourcerepo
 
 import (
+	"log"
 	"os"
 
 	git "github.com/go-git/go-git/v5"
@@ -22,6 +23,7 @@ func New(url string, directory string) (sr *SourceRepo, err error) {
 	if err != nil {
 		r, err = git.PlainOpen(directory)
 		if err != nil {
+			log.Printf("Clone failed: %+v\n", err)
 			return nil, err
 		}
 	}
@@ -35,8 +37,10 @@ func New(url string, directory string) (sr *SourceRepo, err error) {
 
 // Checkout checks out the commitID of the current repository
 func (sr *SourceRepo) Checkout(commitID string) error {
+	log.Printf("Checking out commit: %s\n", commitID)
 	wt, err := sr.repo.Worktree()
 	if err != nil {
+		log.Printf("Getting Worktree failed: %+v\n", err)
 		return err
 	}
 	err = wt.Pull(&git.PullOptions{
@@ -44,6 +48,7 @@ func (sr *SourceRepo) Checkout(commitID string) error {
 		Progress: os.Stdout,
 	})
 	if err != nil {
+		log.Printf("Pull failed: %+v\n", err)
 		return err
 	}
 	err = wt.Checkout(&git.CheckoutOptions{
@@ -51,6 +56,7 @@ func (sr *SourceRepo) Checkout(commitID string) error {
 		Hash:  plumbing.NewHash(commitID),
 	})
 	if err != nil {
+		log.Printf("Checkout failed: %+v\n", err)
 		return err
 	}
 	return nil
