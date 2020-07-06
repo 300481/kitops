@@ -52,7 +52,7 @@ spec:
         name: kitops
         env:
         - name: KITOPS_DEPLOYMENTS_URL
-          value: "https://github.com/300481/kitops-example.git"
+          value: "https://github.com/300481/kitops-test.git"
         resources:
           requests:
             memory: "64Mi"
