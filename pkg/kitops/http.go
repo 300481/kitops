@@ -27,7 +27,6 @@ func (k *Kitops) applyHandler(w http.ResponseWriter, r *http.Request) {
 	commitID := r.URL.Query().Get("commitid")
 
 	if len(commitID) < 1 {
-		log.Println("apply.handler got no commitID")
 		handleError(fmt.Errorf("apply.handler got no commitID"), w)
 		return
 	}
