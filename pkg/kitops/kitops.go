@@ -18,6 +18,10 @@ type Kitops struct {
 // New returns a new Kitops instance
 func New() *Kitops {
 	url := os.Getenv("KITOPS_DEPLOYMENTS_URL")
+	if len(url) == 0 {
+		url = "https://github.com/300481/kitops-test.git"
+	}
+
 	repo, err := sourcerepo.New(url, "/tmp/repo")
 
 	if err != nil {
