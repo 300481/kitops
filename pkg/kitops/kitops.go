@@ -59,7 +59,7 @@ type queueProcessor struct {
 func (qp *queueProcessor) Process(q *queue.Queue) {
 	commitID := q.StartNext().(string)
 
-	qp.clusterConfigs[commitID] = clusterconfig.New(qp.repository, commitID, "/tmp/repo")
+	qp.clusterConfigs[commitID] = clusterconfig.New(qp.repository, commitID, ".")
 
 	if err := qp.clusterConfigs[commitID].Apply(); err != nil {
 		q.Finish(false)
