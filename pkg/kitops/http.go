@@ -26,12 +26,14 @@ func (k *Kitops) applyHandler(w http.ResponseWriter, r *http.Request) {
 
 	commitID := r.URL.Query().Get("commitid")
 
-	if len(commitID) < 1 {
-		handleError(fmt.Errorf("apply.handler got no commitID"), w)
+	if len(commitID) != 40 {
+		handleError(fmt.Errorf("apply.handler got no or wrong commitID"), w)
 		return
 	}
 
 	log.Printf("apply.handler got commitID: %s\n", commitID)
+
+	k.queue.Add(commitID)
 
 	// respond OK
 	w.WriteHeader(http.StatusOK)
