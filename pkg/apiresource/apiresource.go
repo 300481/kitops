@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"os/exec"
-	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -13,7 +12,6 @@ import (
 type errorMessage string
 
 const (
-	objectTimeout                = time.Minute
 	errKindNotFound errorMessage = "Kind not found"
 )
 
@@ -26,6 +24,7 @@ type APIResource struct {
 	}
 }
 
+// Collection holds a collection of resources and the content of
 // New parses a YAML of a Kubernetes Resource description
 // returns an initialized API Resource
 // returns an error, if the Reader contains no valid yaml
