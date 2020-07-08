@@ -3,9 +3,13 @@ package apiresource
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
@@ -14,6 +18,48 @@ const (
 	errKindNotFound = "Kind not found"
 	errInvalidYaml  = "Invalid YAML"
 )
+
+// Collections holds a collection of Collections
+type Collections struct {
+	Items map[string]*Collection
+}
+
+// NewCollections returns *Collections
+func NewCollections() *Collections {
+	return &Collections{
+		Items: make(map[string]*Collection),
+	}
+}
+
+// LoadFromFiles loads collections from YAML files
+// within the directory recursively
+func (c *Collections) LoadFromFiles(directory string) error {
+	return filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
+			return err
+		}
+
+		// if it is a YAML file, load the resources
+		if !info.IsDir() {
+			matched, _ := filepath.Match("*.yaml", info.Name())
+			if matched {
+				content, err := ioutil.ReadFile(path)
+				if err != nil {
+					return err
+				}
+
+				collection, err := NewCollection(content)
+				if err != nil {
+					return err
+				}
+
+				c.Items[path] = collection
+			}
+		}
+		return nil
+	})
+}
 
 // Collection holds a collection of resources and the
 // the corresponding manifests
