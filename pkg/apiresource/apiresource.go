@@ -1,6 +1,7 @@
 package apiresource
 
 import (
+	"bytes"
 	"errors"
 	"io"
 	"log"
@@ -9,11 +10,53 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type errorMessage string
-
 const (
-	errKindNotFound errorMessage = "Kind not found"
+	errKindNotFound = "Kind not found"
+	errInvalidYaml  = "Invalid YAML"
 )
+
+// Collection holds a collection of resources and the
+// the corresponding manifests
+type Collection struct {
+	Items    []*APIResource
+	Manifest []byte
+}
+
+// NewCollection returns a collection of API resources
+// returns an error, if the buffer contains no valid yamls
+func NewCollection(buffer []byte) (collection *Collection, err error) {
+	if len(buffer) == 0 {
+		return nil, errors.New(errInvalidYaml)
+	}
+
+	c := &Collection{
+		Items:    []*APIResource{},
+		Manifest: make([]byte, len(buffer)),
+	}
+
+	copy(c.Manifest, buffer)
+
+	APIResourceContentReader := bytes.NewReader(c.Manifest)
+	for {
+		resource, err := NewResource(APIResourceContentReader)
+		if err != nil {
+			break
+		}
+		c.Items = append(c.Items, resource)
+	}
+
+	return c, nil
+}
+
+// Exists returns a bool. true if the Object exists in the cluster, false if not
+// It returns also false, when there is no information if the resource is namespaced
+func (c *Collection) Exists() bool {
+	var b = true
+	for _, resource := range c.Items {
+		b = b && resource.Exists()
+	}
+	return b
+}
 
 // APIResource holds the object information of the API Object
 type APIResource struct {
@@ -24,7 +67,11 @@ type APIResource struct {
 	}
 }
 
-// Collection holds a collection of resources and the content of
+// NewResource is a wrapper for New() for backward compatibility
+func NewResource(r io.Reader) (resource *APIResource, err error) {
+	return New(r)
+}
+
 // New parses a YAML of a Kubernetes Resource description
 // returns an initialized API Resource
 // returns an error, if the Reader contains no valid yaml
@@ -132,11 +179,11 @@ func (r *APIResource) Namespaced() (b bool, err error) {
 	if ok {
 		return v, nil
 	}
-	return false, errors.New(string(errKindNotFound) + ": " + r.Kind)
+	return false, errors.New(errKindNotFound + ": " + r.Kind)
 }
 
 // Exists returns a bool. true if the Object exists in the cluster, false if not
-// It returns also false, when there is no information if the object is namespaced
+// It returns also false, when there is no information if the resource is namespaced
 func (r *APIResource) Exists() bool {
 	namespaced, err := r.Namespaced()
 	if err != nil {
