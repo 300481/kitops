@@ -18,8 +18,3 @@ tar xvzf helm.tar.gz
 mv linux-amd64/helm .
 rm -rf linux-amd64 helm.tar.gz
 cd -
-
-# download yq
-YQ_VERSION=$(curl -s https://github.com/mikefarah/yq/releases/latest | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
-curl --output ${BIN_DIR}/yq --location https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64
-chmod +x ${BIN_DIR}/yq
