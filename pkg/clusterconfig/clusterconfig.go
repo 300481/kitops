@@ -10,7 +10,6 @@ import (
 	"path/filepath"
 
 	"github.com/300481/kitops/pkg/apiresource"
-	"github.com/300481/kitops/pkg/helmrelease"
 	"github.com/300481/kitops/pkg/sourcerepo"
 )
 
@@ -18,9 +17,9 @@ import (
 type ClusterConfig struct {
 	CommitID          string
 	APIResources      []*apiresource.APIResource
-	HelmReleases      []*helmrelease.HelmRelease
 	SourceRepository  *sourcerepo.SourceRepo
 	ResourceDirectory string
+	//HelmReleases      []*helmrelease.HelmRelease
 }
 
 // New returns an initialized *ClusterConfig
@@ -31,9 +30,9 @@ func New(sourceRepo *sourcerepo.SourceRepo, commitID string, resourceDirectory s
 	return &ClusterConfig{
 		CommitID:          commitID,
 		APIResources:      []*apiresource.APIResource{},
-		HelmReleases:      []*helmrelease.HelmRelease{},
 		SourceRepository:  sourceRepo,
 		ResourceDirectory: resourceDirectory,
+		//HelmReleases:      []*helmrelease.HelmRelease{},
 	}
 }
 
@@ -72,26 +71,28 @@ func (cc *ClusterConfig) Apply() error {
 					cc.APIResources = append(cc.APIResources, resource)
 				}
 
-				// Create a Reader for the HelmReleases
-				HelmReleaseContentReader := bytes.NewReader(content)
-				for {
-					helmRelease, err := helmrelease.New(HelmReleaseContentReader)
-					if err != nil {
-						break
-					}
-					if helmRelease != nil {
-						cc.HelmReleases = append(cc.HelmReleases, helmRelease)
-					}
-				}
+				// // Create a Reader for the HelmReleases
+				// HelmReleaseContentReader := bytes.NewReader(content)
+				// for {
+				// 	helmRelease, err := helmrelease.New(HelmReleaseContentReader)
+				// 	if err != nil {
+				// 		break
+				// 	}
+				// 	if helmRelease != nil {
+				// 		cc.HelmReleases = append(cc.HelmReleases, helmRelease)
+				// 	}
+				// }
 			}
 			// if it is a directory, apply the YAML files with kubectl
 		} else {
 			// write out errors if they occur
 			if err := cc.applyKubectl(path); err != nil {
 				log.Println(err)
+				return err
 			}
 		}
-		return cc.loadHelmResources()
+		// return cc.loadHelmResources()
+		return nil
 	})
 	return walkErr
 }
@@ -131,35 +132,35 @@ func (cc *ClusterConfig) applyKubectl(path string) error {
 	return nil
 }
 
-// loadHelmResources loads the resources which results from a HelmRelease
-func (cc *ClusterConfig) loadHelmResources() error {
-	var command string
-	commandArguments := []string{
-		"get",
-		"manifest",
-	}
-
-	for _, helmrelease := range cc.HelmReleases {
-		if helmrelease.Spec.HelmVersion == "v3" {
-			command = "helm3"
-			commandArguments = append(commandArguments, "--namespace", helmrelease.Metadata.Namespace)
-		} else {
-			command = "helm2"
-		}
-
-		b, err := exec.Command(command, commandArguments...).Output()
-		if err != nil {
-			return err
-		}
-
-		APIResourceContentReader := bytes.NewReader(b)
-		for {
-			resource, err := apiresource.New(APIResourceContentReader)
-			if err != nil {
-				break
-			}
-			cc.APIResources = append(cc.APIResources, resource)
-		}
-	}
-	return nil
-}
+// // loadHelmResources loads the resources which results from a HelmRelease
+// func (cc *ClusterConfig) loadHelmResources() error {
+// 	var command string
+// 	commandArguments := []string{
+// 		"get",
+// 		"manifest",
+// 	}
+//
+// 	for _, helmrelease := range cc.HelmReleases {
+// 		if helmrelease.Spec.HelmVersion == "v3" {
+// 			command = "helm3"
+// 			commandArguments = append(commandArguments, "--namespace", helmrelease.Metadata.Namespace)
+// 		} else {
+// 			command = "helm2"
+// 		}
+//
+// 		b, err := exec.Command(command, commandArguments...).Output()
+// 		if err != nil {
+// 			return err
+// 		}
+//
+// 		APIResourceContentReader := bytes.NewReader(b)
+// 		for {
+// 			resource, err := apiresource.New(APIResourceContentReader)
+// 			if err != nil {
+// 				break
+// 			}
+// 			cc.APIResources = append(cc.APIResources, resource)
+// 		}
+// 	}
+// 	return nil
+// }
