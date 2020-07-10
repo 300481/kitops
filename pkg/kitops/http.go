@@ -44,9 +44,14 @@ func (k *Kitops) applyHandler(w http.ResponseWriter, r *http.Request) {
 
 // clusterConfigHandler writes the ClusterConfig as response
 func (k *Kitops) clusterConfigHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("clusterconfig.handler:", r.Method, "request from ", r.RemoteAddr)
+
 	w.WriteHeader(http.StatusOK)
 	enc := json.NewEncoder(w)
-	enc.Encode(k.queueProcessor.ClusterConfigs)
+	err := enc.Encode(k.queueProcessor.ClusterConfigs)
+	if err != nil {
+		handleError(err, w)
+	}
 }
 
 // error handling function
