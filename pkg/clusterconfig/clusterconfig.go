@@ -21,7 +21,7 @@ type ClusterConfig struct {
 // New returns an initialized *ClusterConfig
 // sourceRepo is the Repository with the configuration
 // commitID is the commit id of the source repository.
-func New(sourceRepo *sourcerepo.SourceRepo, commitID string, resourceDirectory string) *ClusterConfig {
+func New(sourceRepo *sourcerepo.SourceRepo, commitID string) *ClusterConfig {
 	return &ClusterConfig{
 		APIResources:     apiresource.NewCollection(),
 		SourceRepository: sourceRepo,
