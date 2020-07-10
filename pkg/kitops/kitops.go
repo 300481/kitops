@@ -55,17 +55,24 @@ type queueProcessor struct {
 	repository     *sourcerepo.SourceRepo
 }
 
-// Process processes new queued items
+// Process processes new queued commitIDs
 func (qp *queueProcessor) Process(q *queue.Queue) {
 	commitID := q.StartNext().(string)
 
-	qp.clusterConfigs[commitID] = clusterconfig.New(qp.repository, commitID, ".")
+	// create a new ClusterConfig
+	cc := clusterconfig.New(qp.repository, commitID)
+	qp.clusterConfigs[commitID] = cc
 
-	if err := qp.clusterConfigs[commitID].Apply(); err != nil {
+	// apply the manifests
+	if err := cc.ApplyManifests(); err != nil {
+		log.Printf("failed to apply manifests of commitID: %s", commitID)
 		q.Finish(false)
 	} else {
 		q.Finish(true)
 	}
 
-	return
+	// load the manifests in the ClusterConfig
+	if err := cc.LoadManifests(); err != nil {
+		log.Printf("failed to load manifests of commitID: %s", commitID)
+	}
 }
