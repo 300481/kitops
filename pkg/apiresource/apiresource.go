@@ -20,20 +20,17 @@ const (
 	errInvalidYaml  = "Invalid YAML"
 )
 
-// SHA256Checksum is a SHA256 Checksum byte array
-type SHA256Checksum [sha256.Size]byte
-
 // Collection holds a collection of resources and the
 // the corresponding manifests
 type Collection struct {
-	Items     map[SHA256Checksum]*APIResource
+	Items     map[string]*APIResource
 	Manifests map[string][]byte
 }
 
 // NewCollection returns an empty collection of API resources
 func NewCollection() *Collection {
 	return &Collection{
-		Items:     make(map[SHA256Checksum]*APIResource),
+		Items:     make(map[string]*APIResource),
 		Manifests: make(map[string][]byte),
 	}
 }
@@ -257,8 +254,9 @@ func (r *APIResource) Exists() bool {
 	return true
 }
 
-// Checksum returns a SHA256 checksum of the APIResource
-func (r *APIResource) Checksum() SHA256Checksum {
+// Checksum returns a SHA256 checksum of the APIResource as a string
+func (r *APIResource) Checksum() string {
 	s := fmt.Sprintf("%v", *r)
-	return sha256.Sum256([]byte(s))
+	sum := sha256.Sum256([]byte(s))
+	return fmt.Sprintf("%x", sum)
 }
