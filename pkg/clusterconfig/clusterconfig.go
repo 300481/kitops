@@ -29,14 +29,22 @@ func New(sourceRepo *sourcerepo.SourceRepo, commitID string) *ClusterConfig {
 	}
 }
 
+// Checkout checks the commitID out
+func (cc *ClusterConfig) Checkout() error {
+	if err := cc.SourceRepository.Checkout(cc.CommitID); err != nil {
+		log.Printf("Checkout of repository failed. Commit: %s", cc.CommitID)
+		return err
+	}
+	return nil
+}
+
 // ApplyManifests applies the manifests stored in the repository
 // and checked out with the commitID.
 // It returns an error if something goes wrong on apply.
 func (cc *ClusterConfig) ApplyManifests() error {
 	log.Println("Apply the ClusterConfig.")
 
-	if err := cc.SourceRepository.Checkout(cc.CommitID); err != nil {
-		log.Printf("Checkout of repository failed. Commit: %s", cc.CommitID)
+	if err := cc.Checkout(); err != nil {
 		return err
 	}
 
@@ -85,5 +93,8 @@ func (cc *ClusterConfig) ApplyManifests() error {
 // LoadManifests loads the manifests of the checked out repository
 // into the ClusterConfig
 func (cc *ClusterConfig) LoadManifests() error {
+	if err := cc.Checkout(); err != nil {
+		return err
+	}
 	return cc.APIResources.LoadFromDirectory(cc.SourceRepository.Directory)
 }
