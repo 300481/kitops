@@ -13,8 +13,9 @@ import (
 
 // Kitops is the instance type
 type Kitops struct {
-	router *mux.Router
-	queue  *queue.Queue
+	router         *mux.Router
+	queue          *queue.Queue
+	queueProcessor *QueueProcessor
 }
 
 // New returns a new Kitops instance
@@ -32,14 +33,17 @@ func New() *Kitops {
 		return nil
 	}
 
-	q := queue.New(&queueProcessor{
-		clusterConfigs: make(map[string]*clusterconfig.ClusterConfig),
+	qp := &QueueProcessor{
+		ClusterConfigs: make(map[string]*clusterconfig.ClusterConfig),
 		repository:     repo,
-	})
+	}
+
+	q := queue.New(qp)
 
 	return &Kitops{
-		router: mux.NewRouter(),
-		queue:  q,
+		router:         mux.NewRouter(),
+		queue:          q,
+		queueProcessor: qp,
 	}
 }
 
@@ -50,18 +54,18 @@ func (k *Kitops) Serve() {
 }
 
 // QueueProcessor is the instance for processsing the queue items
-type queueProcessor struct {
-	clusterConfigs map[string]*clusterconfig.ClusterConfig
+type QueueProcessor struct {
+	ClusterConfigs map[string]*clusterconfig.ClusterConfig
 	repository     *sourcerepo.SourceRepo
 }
 
 // Process processes new queued commitIDs
-func (qp *queueProcessor) Process(q *queue.Queue) {
+func (qp *QueueProcessor) Process(q *queue.Queue) {
 	commitID := q.StartNext().(string)
 
 	// create a new ClusterConfig
 	cc := clusterconfig.New(qp.repository, commitID)
-	qp.clusterConfigs[commitID] = cc
+	qp.ClusterConfigs[commitID] = cc
 
 	// apply the manifests
 	if err := cc.ApplyManifests(); err != nil {

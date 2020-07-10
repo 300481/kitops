@@ -1,6 +1,7 @@
 package kitops
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -9,8 +10,9 @@ import (
 
 // routes sets the routes
 func (k *Kitops) routes() {
-	k.router.HandleFunc("/healthz", k.healthHandler)
-	k.router.HandleFunc("/apply", k.applyHandler)
+	k.router.HandleFunc("/healthz", k.healthHandler).Methods("GET")
+	k.router.HandleFunc("/apply", k.applyHandler).Methods("GET")
+	k.router.HandleFunc("/clusterconfig", k.clusterConfigHandler).Methods("GET")
 }
 
 // healthHandler handles the /healthz endpoint
@@ -38,6 +40,13 @@ func (k *Kitops) applyHandler(w http.ResponseWriter, r *http.Request) {
 	// respond OK
 	w.WriteHeader(http.StatusOK)
 	io.WriteString(w, "OK")
+}
+
+// clusterConfigHandler writes the ClusterConfig as response
+func (k *Kitops) clusterConfigHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	enc := json.NewEncoder(w)
+	enc.Encode(k.queueProcessor.ClusterConfigs)
 }
 
 // error handling function
