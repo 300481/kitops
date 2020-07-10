@@ -1,9 +1,7 @@
-github.com/300481/kitops/pkg/apiresource v0.0.0-20200701210506-414723a79c43 h1:nfp/Fh2A8JwvjPiECwl8f0zD8ZQMHYWqmfOOWEBWbZI=
-github.com/300481/kitops/pkg/apiresource v0.0.0-20200701210506-414723a79c43/go.mod h1:DsucHstNTk439WnrrMQjAZ/Wam/Gwp591LyWSdaNAfU=
-github.com/300481/kitops/pkg/helmrelease v0.0.0-20200701210506-414723a79c43 h1:hOWWxp6fJJAMpsEtJL5rxO59Bf/2TIvWTWSCby34b+I=
-github.com/300481/kitops/pkg/helmrelease v0.0.0-20200701210506-414723a79c43/go.mod h1:WgN5FDa6VSnNlLpiQJxBaF4+mGCN4gldFG4MTWeYu3E=
-github.com/300481/kitops/pkg/sourcerepo v0.0.0-20200701210506-414723a79c43 h1:OWdEQjXqLAy25R+65ULDK3FTAGbkROTQX4XisuVLCE0=
-github.com/300481/kitops/pkg/sourcerepo v0.0.0-20200701210506-414723a79c43/go.mod h1:BOveWBDqAJ4ODonHLDMHdB3+KLCoSjX2oiN+qAlSIro=
+github.com/300481/kitops/pkg/apiresource v0.0.0-20200710132642-282acb03db58 h1:bdgpy8ub2yXWd+GmxepFsvlOR1nDmisigroikugxEIc=
+github.com/300481/kitops/pkg/apiresource v0.0.0-20200710132642-282acb03db58/go.mod h1:DsucHstNTk439WnrrMQjAZ/Wam/Gwp591LyWSdaNAfU=
+github.com/300481/kitops/pkg/sourcerepo v0.0.0-20200708212255-b69e867e11ce h1:d8M+s8gxTjonayeniwZzdGkqlkQtfB8TMHZmAk9uhdw=
+github.com/300481/kitops/pkg/sourcerepo v0.0.0-20200708212255-b69e867e11ce/go.mod h1:BOveWBDqAJ4ODonHLDMHdB3+KLCoSjX2oiN+qAlSIro=
 github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7/go.mod h1:6zEj6s6u/ghQa61ZWa/C2Aw3RkjiTBOix7dkqa1VLIs=
 github.com/anmitsu/go-shlex v0.0.0-20161002113705-648efa622239/go.mod h1:2FmKhYUyUczH0OGQWaF5ceTx0UBShxjsH6f8oGKYe2c=
 github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5/go.mod h1:wHh0iHkYZB8zMSxRWpUBQtwG5a7fFgvEO+odwuTv2gs=
