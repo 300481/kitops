@@ -2,6 +2,7 @@ package apiresource
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
@@ -19,82 +20,81 @@ const (
 	errInvalidYaml  = "Invalid YAML"
 )
 
-// Collections holds a collection of Collections
-type Collections struct {
-	Items map[string]*Collection
+// SHA256Checksum is a SHA256 Checksum byte array
+type SHA256Checksum [sha256.Size]byte
+
+// Collection holds a collection of resources and the
+// the corresponding manifests
+type Collection struct {
+	Items     map[SHA256Checksum]*APIResource
+	Manifests map[string][]byte
 }
 
-// NewCollections returns *Collections
-func NewCollections() *Collections {
-	return &Collections{
-		Items: make(map[string]*Collection),
+// NewCollection returns an empty collection of API resources
+func NewCollection() *Collection {
+	return &Collection{
+		Items:     make(map[SHA256Checksum]*APIResource),
+		Manifests: make(map[string][]byte),
 	}
 }
 
-// LoadFromFiles loads collections from YAML files
+// LoadFromDirectory loads collections from YAML files
 // within the directory recursively
-func (c *Collections) LoadFromFiles(directory string) error {
+// returns an error if something is wrong with the files
+func (c *Collection) LoadFromDirectory(directory string) error {
 	return filepath.Walk(directory, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			fmt.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
+			log.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
 			return err
 		}
 
 		// if it is a YAML file, load the resources
 		if !info.IsDir() {
 			matched, _ := filepath.Match("*.yaml", info.Name())
-			if matched {
-				content, err := ioutil.ReadFile(path)
-				if err != nil {
-					return err
-				}
+			if !matched {
+				return nil
+			}
 
-				collection, err := NewCollection(content)
-				if err != nil {
-					return err
-				}
+			manifest, err := ioutil.ReadFile(path)
+			if err != nil {
+				log.Printf("error reading from file %q: %v\n", path, err)
+				return nil
+			}
 
-				c.Items[path] = collection
+			if err := c.Add(manifest, path); err != nil {
+				log.Printf("error adding manifest: %v\n", err)
+				return nil
 			}
 		}
 		return nil
 	})
 }
 
-// Collection holds a collection of resources and the
-// the corresponding manifests
-type Collection struct {
-	Items    []*APIResource
-	Manifest []byte
-}
-
-// NewCollection returns a collection of API resources
-// returns an error, if the buffer contains no valid yamls
-func NewCollection(buffer []byte) (collection *Collection, err error) {
-	if len(buffer) == 0 {
-		return nil, errors.New(errInvalidYaml)
+// Add adds API Resources from the given manifest
+// manifest is a byte array containing the manifest
+// path is the path of the manifest file
+// returns an error if the manifest is invalid
+func (c *Collection) Add(manifest []byte, path string) error {
+	if len(manifest) == 0 {
+		return errors.New(errInvalidYaml)
 	}
 
-	c := &Collection{
-		Items:    []*APIResource{},
-		Manifest: make([]byte, len(buffer)),
-	}
+	c.Manifests[path] = make([]byte, len(manifest))
+	copy(c.Manifests[path], manifest)
 
-	copy(c.Manifest, buffer)
-
-	APIResourceContentReader := bytes.NewReader(c.Manifest)
+	APIResourceContentReader := bytes.NewReader(c.Manifests[path])
 	for {
 		resource, err := NewResource(APIResourceContentReader)
 		if err != nil {
 			break
 		}
-		c.Items = append(c.Items, resource)
+		c.Items[resource.Checksum()] = resource
 	}
 
-	return c, nil
+	return nil
 }
 
-// Exists returns a bool. true if the Object exists in the cluster, false if not
+// Exists returns a bool. true if the resources exists in the cluster, false if not
 // It returns also false, when there is no information if the resource is namespaced
 func (c *Collection) Exists() bool {
 	var b = true
@@ -113,15 +113,10 @@ type APIResource struct {
 	}
 }
 
-// NewResource is a wrapper for New() for backward compatibility
-func NewResource(r io.Reader) (resource *APIResource, err error) {
-	return New(r)
-}
-
-// New parses a YAML of a Kubernetes Resource description
+// NewResource parses a YAML of a Kubernetes Resource description
 // returns an initialized API Resource
 // returns an error, if the Reader contains no valid yaml
-func New(r io.Reader) (resource *APIResource, err error) {
+func NewResource(r io.Reader) (resource *APIResource, err error) {
 	dec := yaml.NewDecoder(r)
 
 	var ar APIResource
@@ -253,13 +248,17 @@ func (r *APIResource) Exists() bool {
 		}
 	}
 
-	cmd := exec.Command("kubectl", commandArguments...)
-
-	err = cmd.Run()
+	err = exec.Command("kubectl", commandArguments...).Run()
 	if err != nil {
 		log.Println("Error running command: kubectl ", commandArguments)
 		return false
 	}
 
 	return true
+}
+
+// Checksum returns a SHA256 checksum of the APIResource
+func (r *APIResource) Checksum() SHA256Checksum {
+	s := fmt.Sprintf("%v", *r)
+	return sha256.Sum256([]byte(s))
 }
