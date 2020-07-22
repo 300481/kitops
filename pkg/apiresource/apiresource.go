@@ -24,14 +24,14 @@ const (
 // the corresponding manifests
 type Collection struct {
 	Items     map[string]*APIResource
-	Manifests map[string][]byte
+	manifests map[string][]byte
 }
 
 // NewCollection returns an empty collection of API resources
 func NewCollection() *Collection {
 	return &Collection{
 		Items:     make(map[string]*APIResource),
-		Manifests: make(map[string][]byte),
+		manifests: make(map[string][]byte),
 	}
 }
 
@@ -76,10 +76,10 @@ func (c *Collection) Add(manifest []byte, path string) error {
 		return errors.New(errInvalidYaml)
 	}
 
-	c.Manifests[path] = make([]byte, len(manifest))
-	copy(c.Manifests[path], manifest)
+	c.manifests[path] = make([]byte, len(manifest))
+	copy(c.manifests[path], manifest)
 
-	APIResourceContentReader := bytes.NewReader(c.Manifests[path])
+	APIResourceContentReader := bytes.NewReader(c.manifests[path])
 	for {
 		resource, err := NewResource(APIResourceContentReader)
 		if err != nil {
