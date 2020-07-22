@@ -11,6 +11,7 @@ import (
 // SourceRepo is the struct for the Source Repository
 type SourceRepo struct {
 	repo      *git.Repository
+	URL       string
 	Directory string
 }
 
@@ -30,6 +31,7 @@ func New(url string, directory string) (sr *SourceRepo, err error) {
 
 	sourceRepo := &SourceRepo{
 		repo:      r,
+		URL:       url,
 		Directory: directory,
 	}
 	return sourceRepo, nil
