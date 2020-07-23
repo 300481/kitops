@@ -98,3 +98,9 @@ func (cc *ClusterConfig) LoadManifests() error {
 	}
 	return cc.APIResources.LoadFromDirectory(cc.SourceRepository.Directory)
 }
+
+// Label labels all resources of this ClusterConfig in the Cluster
+func (cc *ClusterConfig) Label() {
+	cc.APIResources.Label()
+	return
+}
