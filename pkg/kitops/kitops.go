@@ -75,11 +75,11 @@ func (qp *QueueProcessor) Process(q *queue.Queue) {
 		q.Finish(true)
 	}
 
-	// label the api resources
-	qp.ClusterConfigs[commitID].Label()
-
 	// load the manifests in the ClusterConfig
 	if err := cc.LoadManifests(); err != nil {
 		log.Printf("failed to load manifests of commitID: %s", commitID)
 	}
+
+	// label the api resources
+	qp.ClusterConfigs[commitID].Label()
 }

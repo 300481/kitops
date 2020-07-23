@@ -1,5 +1,3 @@
-github.com/300481/kitops/pkg/apiresource v0.0.0-20200722201655-f3681c684206 h1:N+c8l/rt+DR9FCU2JgUeZZrhU9wph7+7JKKurIG8rww=
-github.com/300481/kitops/pkg/apiresource v0.0.0-20200722201655-f3681c684206/go.mod h1:DsucHstNTk439WnrrMQjAZ/Wam/Gwp591LyWSdaNAfU=
 github.com/300481/kitops/pkg/apiresource v0.0.0-20200723202845-cae2a42451aa h1:GVCm42RFjS3dMxLt5gBSLN6k+//xfqRXQvLf66ksxDw=
 github.com/300481/kitops/pkg/apiresource v0.0.0-20200723202845-cae2a42451aa/go.mod h1:DsucHstNTk439WnrrMQjAZ/Wam/Gwp591LyWSdaNAfU=
 github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7 h1:uSoVVbwJiQipAclBbw+8quDsfcvFjOpI5iCf4p/cqCs=
