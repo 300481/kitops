@@ -18,7 +18,7 @@ func init() {
 func info() {
 	app.Name = "Kitops"
 	app.Usage = ""
-	app.Version = "0.5.0"
+	app.Version = "0.5.1"
 }
 
 func commands() {
