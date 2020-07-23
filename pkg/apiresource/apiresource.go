@@ -254,6 +254,47 @@ func (r *APIResource) Exists() bool {
 	return true
 }
 
+// Label labels the resource in the cluster
+func (r *APIResource) Label() {
+	if !r.Exists() {
+		log.Println("Warning: resource to label don't exists. Kind: " + r.Kind + " Name: " + r.Metadata.Name + " Namespace: " + r.Metadata.Namespace)
+		return
+	}
+
+	namespaced, err := r.Namespaced()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	var commandArguments []string
+	if namespaced {
+		commandArguments = []string{
+			"-n",
+			r.Metadata.Namespace,
+			"label",
+			r.Kind,
+			r.Metadata.Name,
+			"managedBy=kitops",
+		}
+	} else {
+		commandArguments = []string{
+			"label",
+			r.Kind,
+			r.Metadata.Name,
+			"managedBy=kitops",
+		}
+	}
+
+	err = exec.Command("kubectl", commandArguments...).Run()
+	if err != nil {
+		log.Println("Error running command: kubectl ", commandArguments)
+		return
+	}
+
+	return
+}
+
 // Checksum returns a SHA256 checksum of the APIResource as a string
 func (r *APIResource) Checksum() string {
 	s := fmt.Sprintf("%v", *r)
