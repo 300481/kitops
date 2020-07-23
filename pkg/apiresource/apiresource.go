@@ -101,6 +101,13 @@ func (c *Collection) Exists() bool {
 	return b
 }
 
+// Label labels all resources of the collection in the cluster
+func (c *Collection) Label() {
+	for _, resource := range c.Items {
+		resource.Label()
+	}
+}
+
 // APIResource holds the object information of the API Object
 type APIResource struct {
 	Kind     string
