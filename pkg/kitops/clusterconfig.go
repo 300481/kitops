@@ -103,3 +103,61 @@ func (cc *ClusterConfig) Label() {
 	cc.APIResources.Label()
 	return
 }
+
+// Clean cleans the cluster from resources which are not in the ClusterConfig,
+// but managed by Kitops
+func (cc *ClusterConfig) Clean() {
+	tempCollection := NewCollection()
+	clusterkinds := kinds.getAll()
+
+	// get all labelled resources, put them in a temporary collection
+	for kind, namespaced := range clusterkinds {
+		var commandArguments []string
+		if namespaced {
+			commandArguments = []string{
+				"get",
+				kind,
+				"-l",
+				"managedBy=kitops",
+				"-o",
+				"yaml",
+				"-A",
+			}
+		} else {
+			commandArguments = []string{
+				"get",
+				kind,
+				"-l",
+				"managedBy=kitops",
+				"-o",
+				"yaml",
+			}
+		}
+
+		list, err := exec.Command("kubectl", commandArguments...).Output()
+		if err != nil {
+			log.Println("Error running command: kubectl ", commandArguments)
+			return
+		}
+
+		err = tempCollection.LoadFromList(list) // TODO implement LoadFromList()
+		if err != nil {
+			log.Println("Error loading API resources from list.")
+			return
+		}
+	}
+
+	// compare them with the resources of the current ClusterConfig
+	// if not in the current ClusterConfig, delete it
+	for hash, item := range tempCollection.Items {
+		_, exists := cc.APIResources.Items[hash]
+		if !exists {
+			err := item.Delete() // TODO implement Delete()
+			if err != nil {
+				log.Printf("Error deleting the resource: %+v\n", item)
+			}
+		}
+	}
+
+	return
+}

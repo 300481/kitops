@@ -15,6 +15,11 @@ type clusterKinds struct {
 // declare package variable
 var kinds *clusterKinds
 
+// getAll returns the isNamespaced map
+func (ck *clusterKinds) getAll() map[string]bool {
+	return ck.isNamespaced
+}
+
 // namespaced returns a bool if the Kind is namespaced or not
 func (ck *clusterKinds) namespaced(kind string) bool {
 	ck.update()

@@ -110,3 +110,9 @@ func (r *APIResource) Checksum() string {
 	sum := sha256.Sum256([]byte(s))
 	return fmt.Sprintf("%x", sum)
 }
+
+// Delete deletes the resource from the cluster
+func (r *APIResource) Delete() error {
+	// TODO
+	return nil
+}

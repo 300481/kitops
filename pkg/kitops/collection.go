@@ -84,6 +84,13 @@ func (c *Collection) Add(manifest []byte, path string) error {
 	return nil
 }
 
+// LoadFromList loads API Resources from a byte array
+// with a List of API Resources
+func (c *Collection) LoadFromList(list []byte) error {
+	// TODO
+	return nil
+}
+
 // Exists returns a bool. true if the resources exists in the cluster, false if not
 // It returns also false, when there is no information if the resource is namespaced
 func (c *Collection) Exists() bool {

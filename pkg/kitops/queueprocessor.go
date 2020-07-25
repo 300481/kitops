@@ -36,4 +36,7 @@ func (qp *QueueProcessor) Process(q *queue.Queue) {
 
 	// label the api resources
 	qp.ClusterConfigs[commitID].Label()
+
+	// cleanup resources which are not in the current commit, but managed by kitops
+	qp.ClusterConfigs[commitID].Clean()
 }
