@@ -42,7 +42,7 @@ func NewResource(r io.Reader) (resource *APIResource, err error) {
 // It returns also false, when there is no information if the resource is namespaced
 func (r *APIResource) Exists() bool {
 	var commandArguments []string
-	if ns.namespaced(r.Kind) {
+	if kinds.namespaced(r.Kind) {
 		commandArguments = []string{
 			"-n",
 			r.Metadata.Namespace,
@@ -75,7 +75,7 @@ func (r *APIResource) Label() {
 	}
 
 	var commandArguments []string
-	if ns.namespaced(r.Kind) {
+	if kinds.namespaced(r.Kind) {
 		commandArguments = []string{
 			"-n",
 			r.Metadata.Namespace,

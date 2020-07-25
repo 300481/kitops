@@ -7,19 +7,22 @@ import (
 	"strings"
 )
 
-type namespaced struct {
-	resource map[string]bool
+// clusterKinds holds the namespaced information for Kitops
+type clusterKinds struct {
+	isNamespaced map[string]bool
 }
 
 // declare package variable
-var ns *namespaced
+var kinds *clusterKinds
 
-func (n *namespaced) namespaced(kind string) bool {
-	n.update()
-	return n.resource[kind]
+// namespaced returns a bool if the Kind is namespaced or not
+func (ck *clusterKinds) namespaced(kind string) bool {
+	ck.update()
+	return ck.isNamespaced[kind]
 }
 
-func (n *namespaced) update() {
+// update updates the namespaced information for Kitops
+func (ck *clusterKinds) update() {
 	output, err := exec.Command("kubectl", "api-resources").Output()
 	if err != nil {
 		log.Println(err)
@@ -36,14 +39,14 @@ func (n *namespaced) update() {
 		kind := s[len(s)-1]
 		namespaced := s[len(s)-2] == "true"
 
-		n.resource[kind] = namespaced
+		ck.isNamespaced[kind] = namespaced
 	}
 }
 
 // initialize namespaced
 func init() {
-	ns = &namespaced{
-		resource: make(map[string]bool),
+	kinds = &clusterKinds{
+		isNamespaced: make(map[string]bool),
 	}
-	ns.update()
+	kinds.update()
 }
