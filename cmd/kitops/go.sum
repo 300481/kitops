@@ -1,7 +1,5 @@
-github.com/300481/kitops/pkg/apiresource v0.0.0-20200725203057-20c2740f1cd6 h1:/NAbohqTxMhCVth3BNk0FAv6dErv8jsKZ0iaHkbB9aQ=
-github.com/300481/kitops/pkg/apiresource v0.0.0-20200725203057-20c2740f1cd6/go.mod h1:DsucHstNTk439WnrrMQjAZ/Wam/Gwp591LyWSdaNAfU=
-github.com/300481/kitops/pkg/clusterconfig v0.0.0-20200725203232-1022066be267 h1:MR5a1ANuxWca8QxD9hVMHWL/GKevsUHvKBT41k88OHo=
-github.com/300481/kitops/pkg/clusterconfig v0.0.0-20200725203232-1022066be267/go.mod h1:dVhG4/BJe9XmcrbzupAXPOE+f4jND0wyzlQj9xAOHk8=
+github.com/300481/kitops/pkg/clusterconfig v0.0.0-20200725205243-b5b93ab4ecf3 h1:Rq6mnpBwCHbCawLTWsBO6I3JAMSC5+MUGRwmARUOLdw=
+github.com/300481/kitops/pkg/clusterconfig v0.0.0-20200725205243-b5b93ab4ecf3/go.mod h1:w8YH/P8ktj5QxIMENtSzDGNSRtj4Nx1TeoEZwnbzxys=
 github.com/300481/kitops/pkg/queue v0.0.0-20200725203232-1022066be267 h1:uicvmOkgiHEo0x55WXW9Kgg5kA4fbM5JOfBo+Coi+DU=
 github.com/300481/kitops/pkg/queue v0.0.0-20200725203232-1022066be267/go.mod h1:ON83l6cZJv8584mpwP3ZGYYMjCfQF5yzveHaf9disVU=
 github.com/300481/kitops/pkg/sourcerepo v0.0.0-20200725203057-20c2740f1cd6/go.mod h1:BOveWBDqAJ4ODonHLDMHdB3+KLCoSjX2oiN+qAlSIro=
