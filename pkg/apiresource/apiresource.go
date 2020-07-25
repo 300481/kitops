@@ -179,6 +179,7 @@ func (r *APIResource) Label() {
 			"-n",
 			r.Metadata.Namespace,
 			"label",
+			"--overwrite",
 			r.Kind,
 			r.Metadata.Name,
 			"managedBy=kitops",
@@ -186,6 +187,7 @@ func (r *APIResource) Label() {
 	} else {
 		commandArguments = []string{
 			"label",
+			"--overwrite",
 			r.Kind,
 			r.Metadata.Name,
 			"managedBy=kitops",
