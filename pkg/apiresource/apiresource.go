@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -136,107 +137,11 @@ func NewResource(r io.Reader) (resource *APIResource, err error) {
 	return &ar, nil
 }
 
-// Namespaced returns a bool if the API Resource is namespaced or not
-// returns an error if Kind is not found
-// TODO must be made dynamic by fetching supported API-Resources from current cluster
-func (r *APIResource) Namespaced() (b bool, err error) {
-	namespaced := map[string]bool{
-		"Alertmanager":                   true,
-		"Binding":                        true,
-		"Certificate":                    true,
-		"CertificateRequest":             true,
-		"Challenge":                      true,
-		"ConfigMap":                      true,
-		"ControllerRevision":             true,
-		"CronJob":                        true,
-		"DaemonSet":                      true,
-		"Deployment":                     true,
-		"EndpointSlice":                  true,
-		"Endpoints":                      true,
-		"Event":                          true,
-		"HelmRelease":                    true,
-		"HorizontalPodAutoscaler":        true,
-		"Ingress":                        true,
-		"Issuer":                         true,
-		"Job":                            true,
-		"Lease":                          true,
-		"LimitRange":                     true,
-		"LocalSubjectAccessReview":       true,
-		"NetworkPolicy":                  true,
-		"NetworkSet":                     true,
-		"Order":                          true,
-		"PersistentVolumeClaim":          true,
-		"Pod":                            true,
-		"PodDisruptionBudget":            true,
-		"PodMonitor":                     true,
-		"PodTemplate":                    true,
-		"Prometheus":                     true,
-		"PrometheusRule":                 true,
-		"ReplicaSet":                     true,
-		"ReplicationController":          true,
-		"ResourceQuota":                  true,
-		"Role":                           true,
-		"RoleBinding":                    true,
-		"Secret":                         true,
-		"Service":                        true,
-		"ServiceAccount":                 true,
-		"ServiceMonitor":                 true,
-		"StatefulSet":                    true,
-		"ThanosRuler":                    true,
-		"APIService":                     false,
-		"BGPConfiguration":               false,
-		"BGPPeer":                        false,
-		"BlockAffinity":                  false,
-		"CSIDriver":                      false,
-		"CSINode":                        false,
-		"CertificateSigningRequest":      false,
-		"ClusterInformation":             false,
-		"ClusterIssuer":                  false,
-		"ClusterRole":                    false,
-		"ClusterRoleBinding":             false,
-		"ComponentStatus":                false,
-		"CustomResourceDefinition":       false,
-		"FelixConfiguration":             false,
-		"GlobalNetworkPolicy":            false,
-		"GlobalNetworkSet":               false,
-		"HostEndpoint":                   false,
-		"IPAMBlock":                      false,
-		"IPAMConfig":                     false,
-		"IPAMHandle":                     false,
-		"IPPool":                         false,
-		"MutatingWebhookConfiguration":   false,
-		"Namespace":                      false,
-		"Node":                           false,
-		"PersistentVolume":               false,
-		"PodSecurityPolicy":              false,
-		"PriorityClass":                  false,
-		"RuntimeClass":                   false,
-		"SelfSubjectAccessReview":        false,
-		"SelfSubjectRulesReview":         false,
-		"StorageClass":                   false,
-		"SubjectAccessReview":            false,
-		"TokenReview":                    false,
-		"ValidatingWebhookConfiguration": false,
-		"VolumeAttachment":               false,
-	}
-
-	v, ok := namespaced[r.Kind]
-	if ok {
-		return v, nil
-	}
-	return false, errors.New(errKindNotFound + ": " + r.Kind)
-}
-
 // Exists returns a bool. true if the Object exists in the cluster, false if not
 // It returns also false, when there is no information if the resource is namespaced
 func (r *APIResource) Exists() bool {
-	namespaced, err := r.Namespaced()
-	if err != nil {
-		return false
-	}
-
 	var commandArguments []string
-	if namespaced {
+	if ns.namespaced(r.Kind) {
 		commandArguments = []string{
 			"-n",
 			r.Metadata.Namespace,
@@ -252,7 +157,7 @@ func (r *APIResource) Exists() bool {
 		}
 	}
 
-	err = exec.Command("kubectl", commandArguments...).Run()
+	err := exec.Command("kubectl", commandArguments...).Run()
 	if err != nil {
 		log.Println("Error running command: kubectl ", commandArguments)
 		return false
@@ -268,14 +173,8 @@ func (r *APIResource) Label() {
 		return
 	}
 
-	namespaced, err := r.Namespaced()
-	if err != nil {
-		log.Println(err)
-		return
-	}
-
 	var commandArguments []string
-	if namespaced {
+	if ns.namespaced(r.Kind) {
 		commandArguments = []string{
 			"-n",
 			r.Metadata.Namespace,
@@ -293,7 +192,7 @@ func (r *APIResource) Label() {
 		}
 	}
 
-	err = exec.Command("kubectl", commandArguments...).Run()
+	err := exec.Command("kubectl", commandArguments...).Run()
 	if err != nil {
 		log.Println("Error running command: kubectl ", commandArguments)
 		return
@@ -307,4 +206,45 @@ func (r *APIResource) Checksum() string {
 	s := fmt.Sprintf("%v", *r)
 	sum := sha256.Sum256([]byte(s))
 	return fmt.Sprintf("%x", sum)
+}
+
+// namespaced struct holds the dynamic information if Kind is Namespaced
+type namespaced struct {
+	resource map[string]bool
+}
+
+// declare package variable
+var ns *namespaced
+
+func (n *namespaced) namespaced(kind string) bool {
+	return n.resource[kind]
+}
+
+func (n *namespaced) set(kind string, namespaced bool) {
+	n.resource[kind] = namespaced
+}
+
+// initialize namespaced
+func init() {
+	ns = &namespaced{
+		resource: make(map[string]bool),
+	}
+
+	output, err := exec.Command("kubectl", "api-resources").Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines[1:] {
+		if len(line) == 0 {
+			break
+		}
+
+		s := strings.Fields(line)
+		kind := s[len(s)-1]
+		namespaced := s[len(s)-2] == "true"
+
+		ns.set(kind, namespaced)
+	}
 }
