@@ -7,13 +7,12 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/300481/kitops/pkg/apiresource"
 	"github.com/300481/kitops/pkg/sourcerepo"
 )
 
 // ClusterConfig holds all API Resources for a commit id
 type ClusterConfig struct {
-	APIResources     *apiresource.Collection
+	APIResources     *Collection
 	SourceRepository *sourcerepo.SourceRepo
 	CommitID         string
 }
@@ -23,7 +22,7 @@ type ClusterConfig struct {
 // commitID is the commit id of the source repository.
 func New(sourceRepo *sourcerepo.SourceRepo, commitID string) *ClusterConfig {
 	return &ClusterConfig{
-		APIResources:     apiresource.NewCollection(),
+		APIResources:     NewCollection(),
 		SourceRepository: sourceRepo,
 		CommitID:         commitID,
 	}

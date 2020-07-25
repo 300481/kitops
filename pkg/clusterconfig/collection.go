@@ -1,4 +1,4 @@
-package apiresource
+package clusterconfig
 
 import (
 	"bytes"

@@ -1,4 +1,4 @@
-package apiresource
+package clusterconfig
 
 // namespaced struct holds the dynamic information if Kind is Namespaced
 import (
