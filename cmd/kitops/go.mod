@@ -3,7 +3,7 @@ module github.com/300481/kitops/cmd/kitops
 go 1.14
 
 require (
-	github.com/300481/kitops/pkg/kitops v0.0.0-20200725194434-b2a57f766a8d
+	github.com/300481/kitops/pkg/kitops v0.0.0-20200725203344-972f6c75ac96
 	github.com/urfave/cli/v2 v2.2.0
 )
 

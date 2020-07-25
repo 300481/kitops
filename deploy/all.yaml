@@ -47,7 +47,7 @@ spec:
         run: kitops
     spec:
       containers:
-      - image: 300481/kitops:0.5.2
+      - image: 300481/kitops:0.5.3
         imagePullPolicy: Always
         name: kitops
         env:
