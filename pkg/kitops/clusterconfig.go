@@ -1,4 +1,4 @@
-package clusterconfig
+package kitops
 
 import (
 	"io/ioutil"
@@ -17,10 +17,10 @@ type ClusterConfig struct {
 	CommitID         string
 }
 
-// New returns an initialized *ClusterConfig
+// NewClusterConfig returns an initialized *ClusterConfig
 // sourceRepo is the Repository with the configuration
 // commitID is the commit id of the source repository.
-func New(sourceRepo *sourcerepo.SourceRepo, commitID string) *ClusterConfig {
+func NewClusterConfig(sourceRepo *sourcerepo.SourceRepo, commitID string) *ClusterConfig {
 	return &ClusterConfig{
 		APIResources:     NewCollection(),
 		SourceRepository: sourceRepo,

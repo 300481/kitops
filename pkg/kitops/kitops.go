@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/300481/kitops/pkg/clusterconfig"
 	"github.com/300481/kitops/pkg/queue"
 	"github.com/300481/kitops/pkg/sourcerepo"
 	"github.com/gorilla/mux"
@@ -34,7 +33,7 @@ func New() *Kitops {
 	}
 
 	qp := &QueueProcessor{
-		ClusterConfigs: make(map[string]*clusterconfig.ClusterConfig),
+		ClusterConfigs: make(map[string]*ClusterConfig),
 		repository:     repo,
 	}
 

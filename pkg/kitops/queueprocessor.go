@@ -3,14 +3,13 @@ package kitops
 import (
 	"log"
 
-	"github.com/300481/kitops/pkg/clusterconfig"
 	"github.com/300481/kitops/pkg/queue"
 	"github.com/300481/kitops/pkg/sourcerepo"
 )
 
 // QueueProcessor is the instance for processsing the queue items
 type QueueProcessor struct {
-	ClusterConfigs map[string]*clusterconfig.ClusterConfig
+	ClusterConfigs map[string]*ClusterConfig
 	repository     *sourcerepo.SourceRepo
 }
 
@@ -19,7 +18,7 @@ func (qp *QueueProcessor) Process(q *queue.Queue) {
 	commitID := q.StartNext().(string)
 
 	// create a new ClusterConfig
-	cc := clusterconfig.New(qp.repository, commitID)
+	cc := NewClusterConfig(qp.repository, commitID)
 	qp.ClusterConfigs[commitID] = cc
 
 	// apply the manifests

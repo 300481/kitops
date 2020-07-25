@@ -1,4 +1,4 @@
-package clusterconfig
+package kitops
 
 // namespaced struct holds the dynamic information if Kind is Namespaced
 import (
@@ -19,10 +19,6 @@ func (n *namespaced) namespaced(kind string) bool {
 	return n.resource[kind]
 }
 
-func (n *namespaced) set(kind string, namespaced bool) {
-	n.resource[kind] = namespaced
-}
-
 func (n *namespaced) update() {
 	output, err := exec.Command("kubectl", "api-resources").Output()
 	if err != nil {
@@ -40,7 +36,7 @@ func (n *namespaced) update() {
 		kind := s[len(s)-1]
 		namespaced := s[len(s)-2] == "true"
 
-		ns.set(kind, namespaced)
+		n.resource[kind] = namespaced
 	}
 }
 
