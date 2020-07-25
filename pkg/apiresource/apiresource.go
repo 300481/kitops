@@ -11,11 +11,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const (
-	errKindNotFound = "Kind not found"
-	errInvalidYaml  = "Invalid YAML"
-)
-
 // APIResource holds the object information of the API Object
 type APIResource struct {
 	Kind     string

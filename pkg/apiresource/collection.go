@@ -9,6 +9,10 @@ import (
 	"path/filepath"
 )
 
+const (
+	errInvalidYaml = "Invalid YAML"
+)
+
 // Collection holds a collection of resources and the
 // the corresponding manifests
 type Collection struct {
