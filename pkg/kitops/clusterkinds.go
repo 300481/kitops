@@ -44,6 +44,10 @@ func (ck *clusterKinds) update() {
 		kind := s[len(s)-1]
 		namespaced := s[len(s)-2] == "true"
 
+		// skip kind TokenReview
+		if kind == "TokenReview" {
+			continue
+		}
 		ck.isNamespaced[kind] = namespaced
 	}
 }
