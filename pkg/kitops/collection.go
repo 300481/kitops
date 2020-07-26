@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+
+	yaml "gopkg.in/yaml.v3"
 )
 
 const (
@@ -84,10 +86,33 @@ func (c *Collection) AddFromFile(manifest []byte, path string) error {
 	return nil
 }
 
+// List holds the returned resources from kubectl get
+type List struct {
+	Kind  string
+	Items []APIResource
+}
+
 // LoadFromList loads API Resources from a byte array
 // with a List of API Resources
-func (c *Collection) LoadFromList(list []byte) error {
-	// TODO
+func (c *Collection) LoadFromList(listContent []byte) error {
+	listContentReader := bytes.NewReader(listContent)
+	dec := yaml.NewDecoder(listContentReader)
+
+	var list List
+	err := dec.Decode(&list)
+	if err != nil {
+		log.Println("Error loading resources from list of kubectl")
+		return err
+	}
+
+	if list.Kind != "List" {
+		return errors.New("Error: got no list from kubectl")
+	}
+
+	for _, apiresource := range list.Items {
+		c.Items[apiresource.Checksum()] = &apiresource
+	}
+
 	return nil
 }
 
