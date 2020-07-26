@@ -150,12 +150,9 @@ func (cc *ClusterConfig) Clean() {
 	// compare them with the resources of the current ClusterConfig
 	// if not in the current ClusterConfig, delete it
 	for hash, item := range tempCollection.Items {
-		_, exists := cc.APIResources.Items[hash]
-		if !exists {
-			err := item.Delete() // TODO implement Delete()
-			if err != nil {
-				log.Printf("Error deleting the resource: %+v\n", item)
-			}
+		_, ok := cc.APIResources.Items[hash]
+		if !ok {
+			item.Delete()
 		}
 	}
 

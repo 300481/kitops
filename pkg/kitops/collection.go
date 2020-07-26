@@ -51,7 +51,7 @@ func (c *Collection) LoadFromDirectory(directory string) error {
 				return nil
 			}
 
-			if err := c.Add(manifest, path); err != nil {
+			if err := c.AddFromFile(manifest, path); err != nil {
 				log.Printf("error adding manifest: %v\n", err)
 				return nil
 			}
@@ -60,11 +60,11 @@ func (c *Collection) LoadFromDirectory(directory string) error {
 	})
 }
 
-// Add adds API Resources from the given manifest
+// AddFromFile adds API Resources from the given manifest
 // manifest is a byte array containing the manifest
 // path is the path of the manifest file
 // returns an error if the manifest is invalid
-func (c *Collection) Add(manifest []byte, path string) error {
+func (c *Collection) AddFromFile(manifest []byte, path string) error {
 	if len(manifest) == 0 {
 		return errors.New(errInvalidYaml)
 	}

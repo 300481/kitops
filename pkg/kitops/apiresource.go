@@ -112,7 +112,32 @@ func (r *APIResource) Checksum() string {
 }
 
 // Delete deletes the resource from the cluster
-func (r *APIResource) Delete() error {
-	// TODO
-	return nil
+func (r *APIResource) Delete() {
+	if !r.Exists() {
+		return
+	}
+
+	var commandArguments []string
+	if kinds.namespaced(r.Kind) {
+		commandArguments = []string{
+			"-n",
+			r.Metadata.Namespace,
+			"delete",
+			r.Kind,
+			r.Metadata.Name,
+		}
+	} else {
+		commandArguments = []string{
+			"delete",
+			r.Kind,
+			r.Metadata.Name,
+		}
+	}
+
+	err := exec.Command("kubectl", commandArguments...).Run()
+	if err != nil {
+		log.Println("Error running command: kubectl ", commandArguments)
+	}
+
+	return
 }
