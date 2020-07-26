@@ -140,10 +140,10 @@ func (cc *ClusterConfig) Clean() {
 			continue
 		}
 
-		err = tempCollection.LoadFromList(list) // TODO implement LoadFromList()
+		err = tempCollection.LoadFromList(list)
 		if err != nil {
 			log.Println("Error loading API resources from list.")
-			return
+			continue
 		}
 	}
 
