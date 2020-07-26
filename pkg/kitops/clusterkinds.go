@@ -44,12 +44,6 @@ func (ck *clusterKinds) update() {
 		kind := s[len(s)-1]
 		namespaced := s[len(s)-2] == "true"
 
-		// skip special kinds
-		switch kind {
-		case "SubjectAccessReview", "TokenReview":
-			continue
-		}
-
 		ck.isNamespaced[kind] = namespaced
 	}
 }
