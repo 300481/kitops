@@ -150,6 +150,7 @@ func (cc *ClusterConfig) Clean() {
 	// compare them with the resources of the current ClusterConfig
 	// if not in the current ClusterConfig, delete it
 	for hash, item := range tempCollection.Items {
+		log.Printf("Cleanup check for Checksum: %s", hash)
 		_, ok := cc.APIResources.Items[hash]
 		if !ok {
 			item.Delete()
