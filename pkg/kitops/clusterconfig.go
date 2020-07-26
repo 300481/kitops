@@ -41,8 +41,6 @@ func (cc *ClusterConfig) checkout() error {
 // and checked out with the commitID.
 // It returns an error if something goes wrong on apply.
 func (cc *ClusterConfig) ApplyManifests() error {
-	log.Println("Apply the ClusterConfig.")
-
 	if err := cc.checkout(); err != nil {
 		return err
 	}
@@ -83,6 +81,8 @@ func (cc *ClusterConfig) ApplyManifests() error {
 					log.Println("Error running command: kubectl ", commandArguments)
 					return nil
 				}
+
+				log.Println("Running command: kubectl ", commandArguments)
 			}
 		}
 		return nil
