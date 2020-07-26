@@ -81,6 +81,7 @@ func (c *Collection) AddFromFile(manifest []byte, path string) error {
 			break
 		}
 		c.Items[resource.Checksum()] = resource
+		log.Printf("Add Resource from File to Collection Checksum: %s Kind: %s Name: %s Namespace: %s", resource.Checksum(), resource.Kind, resource.Metadata.Name, resource.Metadata.Namespace)
 	}
 
 	return nil
@@ -111,7 +112,7 @@ func (c *Collection) LoadFromList(listContent []byte) error {
 
 	for _, apiresource := range list.Items {
 		c.Items[apiresource.Checksum()] = &apiresource
-		log.Printf("Loaded Resource from List Kind: %s Name: %s Namespace: %s", apiresource.Kind, apiresource.Metadata.Name, apiresource.Metadata.Namespace)
+		log.Printf("Add Resource from List to Collection Checksum: %s Kind: %s Name: %s Namespace: %s", apiresource.Checksum(), apiresource.Kind, apiresource.Metadata.Name, apiresource.Metadata.Namespace)
 	}
 
 	return nil
