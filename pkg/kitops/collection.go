@@ -81,7 +81,7 @@ func (c *Collection) AddFromFile(manifest []byte, path string) error {
 			break
 		}
 		c.Items[resource.Checksum()] = resource
-		log.Printf("Add Resource from File to Collection Checksum: %s Kind: %s Name: %s Namespace: %s", resource.Checksum(), resource.Kind, resource.Metadata.Name, resource.Metadata.Namespace)
+		log.Printf("Add Resource #%d from File to Collection %s %s %s %s", len(c.Items), resource.Checksum(), resource.Kind, resource.Metadata.Name, resource.Metadata.Namespace)
 	}
 
 	return nil
@@ -110,12 +110,12 @@ func (c *Collection) LoadFromList(listContent []byte) error {
 		return errors.New("Error: got no list from kubectl")
 	}
 
-	for _, apiresource := range list.Items {
-		if len(apiresource.Metadata.Namespace) == 0 {
-			apiresource.Metadata.Namespace = "default"
+	for _, resource := range list.Items {
+		if len(resource.Metadata.Namespace) == 0 {
+			resource.Metadata.Namespace = "default"
 		}
-		c.Items[apiresource.Checksum()] = &apiresource
-		log.Printf("Add Resource from List to Collection Checksum: %s Kind: %s Name: %s Namespace: %s", apiresource.Checksum(), apiresource.Kind, apiresource.Metadata.Name, apiresource.Metadata.Namespace)
+		c.Items[resource.Checksum()] = &resource
+		log.Printf("Add Resource #%d from List to Collection %s %s %s %s", len(c.Items), resource.Checksum(), resource.Kind, resource.Metadata.Name, resource.Metadata.Namespace)
 	}
 
 	return nil
