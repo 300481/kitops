@@ -137,7 +137,7 @@ func (cc *ClusterConfig) Clean() {
 		list, err := exec.Command("kubectl", commandArguments...).Output()
 		if err != nil {
 			log.Println("Error running command: kubectl ", commandArguments)
-			return
+			continue
 		}
 
 		err = tempCollection.LoadFromList(list) // TODO implement LoadFromList()
