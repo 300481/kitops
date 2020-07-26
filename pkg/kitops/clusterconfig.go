@@ -136,7 +136,7 @@ func (cc *ClusterConfig) Clean() {
 
 		list, err := exec.Command("kubectl", commandArguments...).Output()
 		if err != nil {
-			log.Println("Error running command: kubectl ", commandArguments)
+			//log.Println("Error running command: kubectl ", commandArguments)
 			continue
 		}
 
