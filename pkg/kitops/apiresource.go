@@ -139,5 +139,7 @@ func (r *APIResource) Delete() {
 		log.Println("Error running command: kubectl ", commandArguments)
 	}
 
+	log.Printf("Cleanup Resource Kind: %s Name: %s Namespace: %s", r.Kind, r.Metadata.Name, r.Metadata.Namespace)
+
 	return
 }
