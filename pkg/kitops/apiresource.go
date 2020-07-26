@@ -101,6 +101,8 @@ func (r *APIResource) Label() {
 		return
 	}
 
+	log.Printf("Label Resource Kind: %s Name: %s Namespace: %s", r.Kind, r.Metadata.Name, r.Metadata.Namespace)
+
 	return
 }
 
