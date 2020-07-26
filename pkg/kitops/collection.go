@@ -111,6 +111,9 @@ func (c *Collection) LoadFromList(listContent []byte) error {
 	}
 
 	for _, apiresource := range list.Items {
+		if len(apiresource.Metadata.Namespace) == 0 {
+			apiresource.Metadata.Namespace = "default"
+		}
 		c.Items[apiresource.Checksum()] = &apiresource
 		log.Printf("Add Resource from List to Collection Checksum: %s Kind: %s Name: %s Namespace: %s", apiresource.Checksum(), apiresource.Kind, apiresource.Metadata.Name, apiresource.Metadata.Namespace)
 	}
