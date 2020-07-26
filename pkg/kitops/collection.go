@@ -111,6 +111,7 @@ func (c *Collection) LoadFromList(listContent []byte) error {
 
 	for _, apiresource := range list.Items {
 		c.Items[apiresource.Checksum()] = &apiresource
+		log.Printf("Loaded Resource from List Kind: %s Name: %s Namespace: %s", apiresource.Kind, apiresource.Metadata.Name, apiresource.Metadata.Namespace)
 	}
 
 	return nil
