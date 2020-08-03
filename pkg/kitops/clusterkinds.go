@@ -53,5 +53,4 @@ func init() {
 	kinds = &clusterKinds{
 		isNamespaced: make(map[string]bool),
 	}
-	kinds.update()
 }
