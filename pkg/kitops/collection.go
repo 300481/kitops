@@ -90,7 +90,7 @@ func (c *Collection) AddFromFile(manifest []byte, path string) error {
 // List holds the returned resources from kubectl get
 type List struct {
 	Kind  string
-	Items []APIResource
+	Items []*APIResource
 }
 
 // LoadFromList loads API Resources from a byte array
@@ -114,7 +114,7 @@ func (c *Collection) LoadFromList(listContent []byte) error {
 		if len(resource.Metadata.Namespace) == 0 {
 			resource.Metadata.Namespace = "default"
 		}
-		c.Items[resource.Checksum()] = &resource
+		c.Items[resource.Checksum()] = resource
 		log.Printf("Add Resource #%d from List to Collection %s %s %s %s", len(c.Items), resource.Checksum(), resource.Kind, resource.Metadata.Name, resource.Metadata.Namespace)
 	}
 
