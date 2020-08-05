@@ -111,6 +111,9 @@ func (c *Collection) LoadFromList(listContent []byte) error {
 	}
 
 	for _, resource := range list.Items {
+		if c.invalidKind(resource.Kind) {
+			continue
+		}
 		if len(resource.Metadata.Namespace) == 0 {
 			resource.Metadata.Namespace = "default"
 		}
@@ -137,4 +140,16 @@ func (c *Collection) Label() {
 	for _, resource := range c.Items {
 		resource.Label()
 	}
+}
+
+// invalidKind checks if the given Kind is an invalid one for a collection,
+// returns a bool
+func (c *Collection) invalidKind(kind string) bool {
+	kinds := []string{"ComponentStatus"}
+	for _, item := range kinds {
+		if kind == item {
+			return true
+		}
+	}
+	return false
 }
