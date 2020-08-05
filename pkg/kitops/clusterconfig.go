@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/300481/kitops/pkg/sourcerepo"
 )
@@ -22,7 +23,7 @@ type ClusterConfig struct {
 // sourceRepo is the Repository with the configuration
 // commitID is the commit id of the source repository.
 func NewClusterConfig(sourceRepo *sourcerepo.SourceRepo, commitID string) *ClusterConfig {
-	resourceLabel := "managedBy=" + sourceRepo.URL
+	resourceLabel := "managedBy=" + strings.ReplaceAll(strings.ReplaceAll(sourceRepo.URL, ":", "-"), "/", "-")
 	return &ClusterConfig{
 		APIResources:     NewCollection(resourceLabel),
 		SourceRepository: sourceRepo,
