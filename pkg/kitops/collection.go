@@ -18,15 +18,17 @@ const (
 // Collection holds a collection of resources and the
 // the corresponding manifests
 type Collection struct {
-	Items     map[string]*APIResource
-	manifests map[string][]byte
+	Items         map[string]*APIResource
+	manifests     map[string][]byte
+	ResourceLabel string
 }
 
 // NewCollection returns an empty collection of API resources
-func NewCollection() *Collection {
+func NewCollection(label string) *Collection {
 	return &Collection{
-		Items:     make(map[string]*APIResource),
-		manifests: make(map[string][]byte),
+		Items:         make(map[string]*APIResource),
+		manifests:     make(map[string][]byte),
+		ResourceLabel: label,
 	}
 }
 
@@ -138,7 +140,7 @@ func (c *Collection) Exists() bool {
 // Label labels all resources of the collection in the cluster
 func (c *Collection) Label() {
 	for _, resource := range c.Items {
-		resource.Label()
+		resource.Label(c.ResourceLabel)
 	}
 }
 

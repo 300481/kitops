@@ -68,7 +68,7 @@ func (r *APIResource) Exists() bool {
 }
 
 // Label labels the resource in the cluster
-func (r *APIResource) Label() {
+func (r *APIResource) Label(label string) {
 	if !r.Exists() {
 		log.Println("Warning: resource to label don't exists. Kind: " + r.Kind + " Name: " + r.Metadata.Name + " Namespace: " + r.Metadata.Namespace)
 		return
@@ -83,7 +83,7 @@ func (r *APIResource) Label() {
 			"--overwrite",
 			r.Kind,
 			r.Metadata.Name,
-			"managedBy=kitops",
+			label,
 		}
 	} else {
 		commandArguments = []string{
@@ -91,7 +91,7 @@ func (r *APIResource) Label() {
 			"--overwrite",
 			r.Kind,
 			r.Metadata.Name,
-			"managedBy=kitops",
+			label,
 		}
 	}
 

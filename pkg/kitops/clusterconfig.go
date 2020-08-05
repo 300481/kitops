@@ -15,16 +15,19 @@ type ClusterConfig struct {
 	APIResources     *Collection
 	SourceRepository *sourcerepo.SourceRepo
 	CommitID         string
+	ResourceLabel    string
 }
 
 // NewClusterConfig returns an initialized *ClusterConfig
 // sourceRepo is the Repository with the configuration
 // commitID is the commit id of the source repository.
 func NewClusterConfig(sourceRepo *sourcerepo.SourceRepo, commitID string) *ClusterConfig {
+	resourceLabel := "managedBy=" + sourceRepo.URL
 	return &ClusterConfig{
-		APIResources:     NewCollection(),
+		APIResources:     NewCollection(resourceLabel),
 		SourceRepository: sourceRepo,
 		CommitID:         commitID,
+		ResourceLabel:    resourceLabel,
 	}
 }
 
@@ -107,7 +110,7 @@ func (cc *ClusterConfig) Label() {
 // Clean cleans the cluster from resources which are not in the ClusterConfig,
 // but managed by Kitops
 func (cc *ClusterConfig) Clean() {
-	tempCollection := NewCollection()
+	tempCollection := NewCollection(cc.ResourceLabel)
 	clusterkinds := kinds.getAll()
 
 	// get all labelled resources, put them in a temporary collection
@@ -118,7 +121,7 @@ func (cc *ClusterConfig) Clean() {
 				"get",
 				kind,
 				"-l",
-				"managedBy=kitops",
+				cc.ResourceLabel,
 				"-o",
 				"yaml",
 				"-A",
@@ -128,7 +131,7 @@ func (cc *ClusterConfig) Clean() {
 				"get",
 				kind,
 				"-l",
-				"managedBy=kitops",
+				cc.ResourceLabel,
 				"-o",
 				"yaml",
 			}
