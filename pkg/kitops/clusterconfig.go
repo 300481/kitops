@@ -151,10 +151,10 @@ func (cc *ClusterConfig) Clean() {
 	// if not in the current ClusterConfig, delete it
 	for hash, item := range tempCollection.Items {
 		log.Printf("Cleanup check for Checksum: %s %s %s %s", hash, item.Kind, item.Metadata.Name, item.Metadata.Namespace)
-		//_, ok := cc.APIResources.Items[hash]
-		//if !ok {
-		item.Delete()
-		//}
+		_, ok := cc.APIResources.Items[hash]
+		if !ok {
+			item.Delete()
+		}
 	}
 
 	return
