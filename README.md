@@ -1,5 +1,11 @@
 # kitops
 
+## archived - development stopped
+
+I've found Argo CD which is doing nearly exactly what i need.
+
+
+
 Kubernetes Git-Ops
 
 This Operator will do nearly the same as [WeaveWorks Flux](https://github.com/fluxcd/flux)
